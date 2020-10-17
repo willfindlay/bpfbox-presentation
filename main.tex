@@ -1,0 +1,189 @@
+% =========================================================================== %
+% Preamble                                                                    %
+% =========================================================================== %
+
+\documentclass[12pt, dvipsnames]{beamer}
+%\documentclass[12pt, dipsnames, notes=only]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{beamerthemesimple}
+
+\title{bpfbox: Simple Precise Process Confinement in eBPF}
+\author{\textbf{William Findlay}\inst{1} \and Anil Somayaji \and David Barrera}
+\institute{\inst{1}\url{will@ccsl.carleton.ca}}
+
+\usepackage{csquotes}
+\usepackage{booktabs}
+
+% Center floats by default
+\makeatletter
+\g@addto@macro\@floatboxreset{\centering}
+\makeatother
+
+% Table of Contents for sections
+\AtBeginSection[]
+{
+    \begin{frame}[noframenumbering, plain]
+    %    \frametitle{Outline of Talk}
+    %    \tableofcontents[currentsection]
+        \begin{center}
+        {\fontsize{42.99}{48}\selectfont \color{destacado} \insertsection}
+        \end{center}
+    \end{frame}
+}
+
+\def\vfilll{\vskip 0pt plus 1filll minus 0pt}
+
+% =========================================================================== %
+% Document                                                                    %
+% =========================================================================== %
+
+\begin{document}
+
+\setwatermark[hoffset=6cm, voffset=0.3cm]{\includegraphics[height=1.5cm]{figs/carleton.pdf}}
+
+% Title page
+\begin{frame}
+\titlepage
+\end{frame}
+
+\setwatermark[hoffset=6cm, voffset=0.3cm]{}
+
+% - bpfbox logo
+
+\begin{frame}{Outline of Talk}
+    \tableofcontents
+\end{frame}
+
+\section{Motivation}
+
+% - Unix DAC, seccomp-bpf, namespaces, cgroups, Linux MAC (SELinux, AppArmor,
+%   TOMOYO, etc.)
+% - Where does this complexity arise from? No unified solution
+% (Maybe the following can go into a separate slide...)
+% - Higher level frameworks as Frankenstein's monster
+% - Higher level frameworks being too coarse-grained (snap vs bpfbox)
+
+\begin{frame}[t]{The Status Quo}
+\begin{itemize}
+    \item Existing process confinement mechanisms are \textbf{complex}
+\end{itemize}
+\begin{center}
+    \includegraphics[width=0.8\textwidth]{figs/process-confinement-landscape.pdf}
+\end{center}
+\begin{itemize}
+    \item Existing process confinement mechanisms are \textbf{difficult to use}
+\end{itemize}
+\begin{center}
+    \includegraphics[height=4em]{figs/selinux.png}
+    \hspace{3em}
+    \includegraphics[height=4em]{figs/apparmor.png}
+    \hspace{3em}
+    \includegraphics[height=4em]{figs/tomoyo.png}
+\end{center}
+%\begin{center}
+%    \footnotesize (in order of decreasing difficulty)
+%\end{center}
+\begin{itemize}
+    \item Can we do any better?
+\end{itemize}
+\end{frame}
+
+% - Discuss all the access control mechanisms on Linux
+% - Unix DAC, seccomp-bpf, namespaces, cgroups, Linux MAC (SELinux, AppArmor,
+%   TOMOYO, etc.)
+% - Where does this complexity arise from? No unified solution
+% (Maybe the following can go into a separate slide...)
+% - Higher level frameworks as Frankenstein's monster
+% - Higher level frameworks being too coarse-grained (snap vs bpfbox)
+
+\begin{frame}[t]{Stakeholders as Policy Authors}
+\begin{itemize}
+    \item \textbf{Security experts} define the policy
+\end{itemize}
+\begin{center}
+    \includegraphics[height=4em]{figs/selinux.png}
+    \hspace{3em}
+    \includegraphics[height=4em]{figs/apparmor.png}
+    \hspace{3em}
+    \includegraphics[height=4em]{figs/tomoyo.png}
+\end{center}
+
+\begin{itemize}
+    \item \textbf{Application authors} and \textbf{packagers} define the policy
+\end{itemize}
+\begin{center}
+    \includegraphics[height=4em]{figs/snapcraft.png}
+    \hspace{3em}
+    \includegraphics[height=4em]{figs/docker.png}
+\end{center}
+
+\begin{itemize}
+    \item \textbf{End users} define the policy
+\end{itemize}
+\begin{center}
+    \Huge ???
+\end{center}
+\end{frame}
+
+% - Discuss stakeholders as policy authors:
+% - security experts write policy and ship it with distributions
+%   - SELinux, AppArmor, seccomp-bpf, etc.
+% - application authors write policy and ship it with applications
+%   - snap, etc.
+% - end users write their own policy
+%   - ???
+
+\begin{frame}[t]{eBPF Changes the Game}
+TODO
+\end{frame}
+
+\section{Architecture}
+
+\begin{frame}[t]{bpfbox Architecture}
+\begin{itemize}
+    \item TODO: Python3 bcc
+    \item TODO: KRSI
+    \item TODO: Lines of userspace code
+    \item TODO: Lines of kernelspace code
+    \item TODO: Compare w/ SELinux, AppArmor
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{bpfbox Architecture}
+\vfill
+\begin{center}
+    \color{black}
+    \includegraphics[width=0.9\textwidth]{figs/bpfbox-overview.pdf}
+\end{center}
+\vfill
+\end{frame}
+
+\section{Policy}
+
+\begin{frame}[t]{bpfbox Policy}
+TODO: bpfbox policy example maybe vs snap
+\end{frame}
+
+\section{Performance}
+
+\begin{frame}[t]{Performance}
+TODO
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}[t]{Acknowledgements}
+TODO
+\end{frame}
+
+\begin{frame}[t]{Contributions}
+\begin{itemize}
+    \item First full policy enforcement engine written in eBPF
+    \item Integration of \alert{userspace} and \alert{kernelspace} state with \alert{LSM layer enforcement}
+\end{itemize}
+\end{frame}
+
+\end{document}
+
+% vim:syn=tex
