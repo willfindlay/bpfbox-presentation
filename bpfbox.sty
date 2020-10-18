@@ -1,0 +1,69 @@
+% Define Language
+\lstdefinelanguage{bpfbox}
+{
+    % keywords are not case-sensitive
+    sensitive=false,
+    % constants
+    morekeywords={
+    object,
+    any,
+    self,
+    parent,
+    child,
+    access,
+    protocol,
+    % ptrace
+    attach,
+    % fs access
+    read,
+    write,
+    exec,
+    append,
+    link,
+    setattr,
+    getattr,
+    rm,
+    ioctl,
+    % devfs categories
+    tty,
+    % net access
+    bind,
+    create,
+    connect,
+    send,
+    recv,
+    accept,
+    listen,
+    % net families
+    inet,
+    inet6,
+    unix,
+    netlink,
+    % signals
+    fatal,
+    check,
+    nohandle,
+    sigkill,
+    sigterm,
+    sigint,
+    },
+    % policy categories
+    morekeywords=[2]{
+    category,
+    rule,
+    fs,
+    net,
+    proc,
+    dev,
+    signal,
+    ptrace,
+    },
+    % strings
+    morestring=[b]",
+    morestring=[b]',
+    % directives
+    moredelim=*[s][{\bfseries\color{listing-keyword-3}}]{\#[}{]},
+    moredelim=*[s][{\bfseries\color{listing-keyword-3}}]{\#![}{]},
+    % comments
+    morecomment=[s]{/*}{*/},
+}

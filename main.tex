@@ -20,6 +20,37 @@
 \g@addto@macro\@floatboxreset{\centering}
 \makeatother
 
+\usepackage{listings}
+
+\definecolor{listing-background}{HTML}{F7F7F7}
+\definecolor{listing-rule}{HTML}{B3B2B3}
+\definecolor{listing-numbers}{HTML}{B3B2B3}
+\definecolor{listing-text-color}{HTML}{000000}
+\definecolor{listing-keyword}{HTML}{435489}
+\definecolor{listing-keyword-2}{HTML}{1284CA} % additional keywords
+\definecolor{listing-keyword-3}{HTML}{9137CB} % additional keywords
+\definecolor{listing-identifier}{HTML}{435489}
+\definecolor{listing-string}{HTML}{00999A}
+\definecolor{listing-comment}{HTML}{8E8E8E}
+
+% Set default listings style
+\lstdefinestyle{listingstyle}{
+    %backgroundcolor  = \color{listing-background},
+    numberstyle      = \color{listing-numbers}\ttfamily\normalsize\lst@ifdisplaystyle\footnotesize\fi,
+    basicstyle       = \ttfamily\normalsize\lst@ifdisplaystyle\footnotesize\fi,
+    keywordstyle     = {\color{listing-keyword}\bfseries},
+    keywordstyle     = {[2]\color{listing-keyword-2}\bfseries},
+    keywordstyle     = {[3]\color{listing-keyword-3}\bfseries\itshape},
+    sensitive        = true,
+    commentstyle     = \color{listing-comment},
+    stringstyle      = \color{listing-string},
+    showstringspaces = false,
+    literate = {~}{$\sim$}{1}
+}
+\lstset{style=listingstyle}
+
+\usepackage{bpfbox}
+
 % Table of Contents for sections
 \AtBeginSection[]
 {
@@ -43,7 +74,7 @@
 \setwatermark[hoffset=6cm, voffset=0.3cm]{\includegraphics[height=1.5cm]{figs/carleton.pdf}}
 
 % Title page
-\begin{frame}
+\begin{frame}[noframenumbering, plain]
 \titlepage
 \end{frame}
 
@@ -51,7 +82,7 @@
 
 % - bpfbox logo
 
-\begin{frame}{Outline of Talk}
+\begin{frame}[noframenumbering, plain]{Outline of Talk}
     \tableofcontents
 \end{frame}
 
@@ -161,8 +192,26 @@ TODO
 
 \section{Policy}
 
-\begin{frame}[t]{bpfbox Policy}
-TODO: bpfbox policy example maybe vs snap
+\begin{frame}[t, fragile]{bpfbox Policy}
+\begin{itemize}
+    \item Write bpfbox policy at the \textbf{function call} level:
+\end{itemize}
+\begin{lstlisting}[language=bpfbox]
+#![profile /sbin/mylogin]
+
+#[func check_password]
+#[func add_user]
+#[allow] {
+    read("/etc/passwd")
+    read("/etc/shadow")
+}
+
+#[func add_user]
+#[allow] {
+    append("/etc/passwd")
+    append("/etc/shadow")
+}
+\end{lstlisting}
 \end{frame}
 
 \section{Performance}
