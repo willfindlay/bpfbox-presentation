@@ -118,9 +118,10 @@ So then \textbf{what is eBPF?}
 \end{center}
 \end{frame}
 
-\begin{frame}[t]{eBPF in 2020}
+\begin{frame}[c]{eBPF in 2020}
+eBPF is now \textbf{more than just an observability tool}.
     \begin{itemize}
-        \item eBPF as more than just an observability tool
+        \item TODO
     \end{itemize}
 \end{frame}
 
@@ -133,7 +134,7 @@ So then \textbf{what is eBPF?}
 % - Higher level frameworks as Frankenstein's monster
 % - Higher level frameworks being too coarse-grained (snap vs bpfbox)
 
-\begin{frame}[t]{The Status Quo}
+\begin{frame}[c]{The Status Quo}
 \begin{itemize}
     \item Existing process confinement mechanisms are \textbf{complex}
 \end{itemize}
@@ -166,7 +167,7 @@ So then \textbf{what is eBPF?}
 % - Higher level frameworks as Frankenstein's monster
 % - Higher level frameworks being too coarse-grained (snap vs bpfbox)
 
-\begin{frame}[t]{Stakeholders as Policy Authors}
+\begin{frame}[c]{Stakeholders as Policy Authors}
 \begin{itemize}
     \item \textbf{Security experts} define the policy
 \end{itemize}
@@ -203,13 +204,13 @@ So then \textbf{what is eBPF?}
 % - end users write their own policy
 %   - ???
 
-\begin{frame}[t]{eBPF Changes the Game}
+\begin{frame}[c]{eBPF Changes the Game}
 TODO
 \end{frame}
 
 \section{bpfbox Architecture}
 
-\begin{frame}[t]{bpfbox Architecture}
+\begin{frame}[c]{bpfbox Architecture}
 \begin{itemize}
     \item TODO: Python3 bcc
     \item TODO: KRSI
@@ -219,11 +220,11 @@ TODO
 \end{itemize}
 \end{frame}
 
-\begin{frame}[t]{bpfbox Architecture}
+\begin{frame}[c]{bpfbox Architecture}
 \vfill
 \begin{center}
     \color{black}
-    \includegraphics[width=0.9\textwidth]{figs/bpfbox-overview.pdf}
+    \includegraphics[width=1\textwidth]{figs/bpfbox-overview.pdf}
 \end{center}
 \vfill
 \end{frame}
@@ -251,21 +252,37 @@ TODO
 
 \section{Performance Evaluation}
 
-\begin{frame}[t]{Performance}
+\begin{frame}[c]{Performance}
 TODO
 \end{frame}
 
 \section{Conclusion}
 
-\begin{frame}[t]{Acknowledgements}
-TODO
+\begin{frame}[c]{Acknowledgements}
+Special thanks to:
+\begin{itemize}
+    \item \textbf{Alexei Starovoitov} and \textbf{Daniel Borkman} (creators of eBPF)
+    \item \textbf{K.P.~Singh} (creator of KRSI)
+    \item Fellow \textbf{bcc contributors} (an awesome eBPF framework)
+    \item Anonymous \textbf{CCSW'2020 reviewers} (valuable feedback)
+\end{itemize}
+\vfill
+This work was supported by NSERC through a Discovery Grant.
 \end{frame}
 
-\begin{frame}[t]{Contributions}
+\begin{frame}[c]{Contributions}
 \begin{itemize}
-    \item First full policy enforcement engine written in eBPF
+    \item First full policy \textbf{enforcement engine} written in eBPF
     \item Integration of \textbf{userspace} and \textbf{kernelspace} state with \textbf{LSM layer enforcement}
+    \item A simple policy language for \textbf{ad hoc process confinement}
+    \begin{itemize}
+        \item But with optional complexity for \textbf{fine-grained protection}
+    \end{itemize}
 \end{itemize}
+\begin{center}
+    \includegraphics[width=0.33\textwidth]{figs/bpfbox-qrcode.png}\\
+    Check out the project on GitHub!
+\end{center}
 \end{frame}
 
 \end{document}
