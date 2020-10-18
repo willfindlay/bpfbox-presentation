@@ -9,8 +9,8 @@
 \usepackage{beamerthemesimple}
 
 \title{bpfbox: Simple Precise Process Confinement in eBPF}
-\author{\textbf{William Findlay}\inst{1} \and Anil Somayaji \and David Barrera}
-\institute{\inst{1}\url{will@ccsl.carleton.ca}}
+\author{\textbf{William Findlay} \and Anil Somayaji \and David Barrera}
+\institute{Carleton University\\\url{will@ccsl.carleton.ca}}
 
 \usepackage{csquotes}
 \usepackage{booktabs}
@@ -36,6 +36,7 @@
 % Set default listings style
 \lstdefinestyle{listingstyle}{
     %backgroundcolor  = \color{listing-background},
+    %xleftmargin      = 2em,
     numberstyle      = \color{listing-numbers}\ttfamily\normalsize\lst@ifdisplaystyle\footnotesize\fi,
     basicstyle       = \ttfamily\normalsize\lst@ifdisplaystyle\footnotesize\fi,
     keywordstyle     = {\color{listing-keyword}\bfseries},
@@ -71,7 +72,7 @@
 
 \begin{document}
 
-\setwatermark[hoffset=6cm, voffset=0.3cm]{\includegraphics[height=1.5cm]{figs/carleton.pdf}}
+%\setwatermark[hoffset=6cm, voffset=0.3cm]{\includegraphics[height=1.5cm]{figs/carleton.pdf}}
 
 % Title page
 \begin{frame}[noframenumbering, plain]
@@ -84,6 +85,31 @@
 
 \begin{frame}[noframenumbering, plain]{Outline of Talk}
     \tableofcontents
+\end{frame}
+
+\section{What is eBPF?}
+
+\begin{frame}[c]{eBPF in the Beginning}
+eBPF $\equiv$ \textbf{E}xtended \textbf{B}erkley \textbf{P}acket \textbf{F}ilter...
+\begin{itemize}
+    \item But it has little to do with Berkley, packets, or filtering nowadays
+\end{itemize}
+\vfill
+So then \textbf{what is eBPF?}
+\begin{itemize}
+    \item A major re-write of the Linux BPF engine
+    \begin{itemize}
+        \item Alexei Starovoitov and Daniel Borkman
+    \end{itemize}
+    \item Merged into the Linux kernel in 2014
+    \item The point was fine-grained, cross-layer \textbf{system introspection}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{eBPF in 2020}
+    \begin{itemize}
+        \item
+    \end{itemize}
 \end{frame}
 
 \section{Motivation}
@@ -192,10 +218,7 @@ TODO
 
 \section{Policy}
 
-\begin{frame}[t, fragile]{bpfbox Policy}
-\begin{itemize}
-    \item Write bpfbox policy at the \textbf{function call} level:
-\end{itemize}
+\begin{frame}[t, fragile]{Policy at the Function Call Level}
 \begin{lstlisting}[language=bpfbox]
 #![profile /sbin/mylogin]
 
@@ -229,7 +252,7 @@ TODO
 \begin{frame}[t]{Contributions}
 \begin{itemize}
     \item First full policy enforcement engine written in eBPF
-    \item Integration of \alert{userspace} and \alert{kernelspace} state with \alert{LSM layer enforcement}
+    \item Integration of \textbf{userspace} and \textbf{kernelspace} state with \textbf{LSM layer enforcement}
 \end{itemize}
 \end{frame}
 
