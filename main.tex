@@ -55,11 +55,9 @@
 % Table of Contents for sections
 \AtBeginSection[]
 {
-    \begin{frame}[noframenumbering, plain]
-    %    \frametitle{Outline of Talk}
-    %    \tableofcontents[currentsection]
+    \begin{frame}[c, noframenumbering, plain]
         \begin{center}
-        {\fontsize{42.99}{48}\selectfont \color{destacado} \insertsection}
+        \fontsize{42.99}{51.59} \selectfont \bfseries \color{destacado} \insertsection
         \end{center}
     \end{frame}
 }
@@ -106,9 +104,23 @@ So then \textbf{what is eBPF?}
 \end{itemize}
 \end{frame}
 
+\begin{frame}[c]{What Can eBPF Do?}
+\begin{center}
+    \color{black}
+    \includegraphics[width=0.8\textwidth]{figs/ebpf-overview.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}[c]{How eBPF Works}
+\begin{center}
+    \color{black}
+    \includegraphics[height=0.8\textheight]{figs/how-ebpf-works.pdf}
+\end{center}
+\end{frame}
+
 \begin{frame}[t]{eBPF in 2020}
     \begin{itemize}
-        \item
+        \item eBPF as more than just an observability tool
     \end{itemize}
 \end{frame}
 
@@ -195,7 +207,7 @@ So then \textbf{what is eBPF?}
 TODO
 \end{frame}
 
-\section{Architecture}
+\section{bpfbox Architecture}
 
 \begin{frame}[t]{bpfbox Architecture}
 \begin{itemize}
@@ -216,9 +228,9 @@ TODO
 \vfill
 \end{frame}
 
-\section{Policy}
+\section{bpfbox Policy}
 
-\begin{frame}[t, fragile]{Policy at the Function Call Level}
+\begin{frame}[c, fragile]{Policy at the Function Call Level}
 \begin{lstlisting}[language=bpfbox]
 #![profile /sbin/mylogin]
 
@@ -237,7 +249,7 @@ TODO
 \end{lstlisting}
 \end{frame}
 
-\section{Performance}
+\section{Performance Evaluation}
 
 \begin{frame}[t]{Performance}
 TODO
