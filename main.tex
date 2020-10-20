@@ -195,6 +195,7 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
 % - Higher level frameworks as Frankenstein's monster
 % - Higher level frameworks being too coarse-grained (Snap vs bpfbox)
 
+% TODO: do I want this? does it make sense to have it here?
 \begin{frame}[c]{Stakeholders as Policy Authors}
 \begin{itemize}
     \item \textbf{Security experts} define the policy
@@ -233,7 +234,15 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
 %   - ???
 
 \begin{frame}[c]{eBPF Changes the Game}
-TODO
+eBPF enables:
+\begin{itemize}
+    \item Fine-grained system introspection
+    \item Rapid prototyping
+    \item Safe production deployment of new security solutions
+    \item Integration of \textbf{cross-layer state} with policy enforcement
+\end{itemize}
+\vfill
+We have an opportunity to \textbf{rethink process confinement} from the ground up.
 \end{frame}
 
 \section{bpfbox Implementation}
@@ -309,9 +318,9 @@ TODO
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}[c]{bpfbox vs Snap}
+\begin{frame}[c]{bpfbox vs.~Snap}
 \begin{itemize}
-    \item Snap provides
+    \item Snap provides TODO
 \end{itemize}
 \vfill
 See our paper for a detailed case study of Apache \texttt{httpd} policy.
