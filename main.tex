@@ -10,7 +10,7 @@
 
 \title{bpfbox: Simple Precise Process Confinement in eBPF}
 \author{\textbf{William Findlay} \and Anil Somayaji \and David Barrera}
-\institute{Carleton University\\\url{will@ccsl.carleton.ca}}
+\institute{Carleton University\\\href{mailto:will@ccsl.carleton.ca}{\ttfamily will@ccsl.carleton.ca}}
 
 \usepackage{csquotes}
 \usepackage{booktabs}
@@ -37,8 +37,8 @@
 \lstdefinestyle{listingstyle}{
     %backgroundcolor  = \color{listing-background},
     %xleftmargin      = 2em,
-    numberstyle      = \color{listing-numbers}\ttfamily\normalsize\lst@ifdisplaystyle\footnotesize\fi,
-    basicstyle       = \ttfamily\normalsize\lst@ifdisplaystyle\footnotesize\fi,
+    %numberstyle      = \color{listing-numbers}\ttfamily\normalsize\lst@ifdisplaystyle\scriptsize\fi,
+    basicstyle       = \ttfamily\normalsize\lst@ifdisplaystyle\scriptsize\fi,
     keywordstyle     = {\color{listing-keyword}\bfseries},
     keywordstyle     = {[2]\color{listing-keyword-2}\bfseries},
     keywordstyle     = {[3]\color{listing-keyword-3}\bfseries\itshape},
@@ -49,6 +49,23 @@
     literate = {~}{$\sim$}{1}
 }
 \lstset{style=listingstyle}
+
+\definecolor[named]{ACMBlue}{cmyk}{1,0.1,0,0.1}
+\definecolor[named]{ACMYellow}{cmyk}{0,0.16,1,0}
+\definecolor[named]{ACMOrange}{cmyk}{0,0.42,1,0.01}
+\definecolor[named]{ACMRed}{cmyk}{0,0.90,0.86,0}
+\definecolor[named]{ACMLightBlue}{cmyk}{0.49,0.01,0,0}
+\definecolor[named]{ACMGreen}{cmyk}{0.20,0,1,0.19}
+\definecolor[named]{ACMPurple}{cmyk}{0.55,1,0,0.15}
+\definecolor[named]{ACMDarkBlue}{cmyk}{1,0.58,0,0.21}
+
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = .,
+    urlcolor   = ACMBlue,
+    citecolor  = ACMPurple,
+}
+\urlstyle{tt}
 
 \usepackage{bpfbox}
 
@@ -61,8 +78,6 @@
         \end{center}
     \end{frame}
 }
-
-\def\vfilll{\vskip 0pt plus 1filll minus 0pt}
 
 % =========================================================================== %
 % Document                                                                    %
@@ -79,9 +94,13 @@
 
 \setwatermark[hoffset=6cm, voffset=0.3cm]{}
 
-% - bpfbox logo
+\begin{frame}[c, noframenumbering, plain]
+    \begin{center}
+        \Huge bpfbox logo here
+    \end{center}
+\end{frame}
 
-\begin{frame}[noframenumbering, plain]{Outline of Talk}
+\begin{frame}[c, noframenumbering, plain]{Outline of Talk}
     \tableofcontents
 \end{frame}
 
@@ -91,13 +110,14 @@
 eBPF $\equiv$ \textbf{E}xtended \textbf{B}erkley \textbf{P}acket \textbf{F}ilter...
 \begin{itemize}
     \item But it has little to do with Berkley, packets, or filtering nowadays
+    \item The name BPF is preserved for historical reasons
 \end{itemize}
 \vfill
 So then \textbf{what is eBPF?}
 \begin{itemize}
     \item A major re-write of the Linux BPF engine
     \begin{itemize}
-        \item Alexei Starovoitov and Daniel Borkman
+        \item Alexei Starovoitov and Daniel Borkmann
     \end{itemize}
     \item Merged into the Linux kernel in 2014
     \item The point was fine-grained, cross-layer \textbf{system introspection}
@@ -120,9 +140,16 @@ So then \textbf{what is eBPF?}
 
 \begin{frame}[c]{eBPF in 2020}
 eBPF is now \textbf{more than just an observability tool}.
-    \begin{itemize}
-        \item TODO
-    \end{itemize}
+\begin{itemize}
+    \item eBPF provides a \textbf{safe}, \textbf{efficient}, and \textbf{flexible} way for privileged users to extend the kernel
+    \item eBPF turns Linux into a \textbf{programmable kernel}
+\end{itemize}
+\vfill
+Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity \textbf{I}nstrumentation)
+\begin{itemize}
+    \item Attach BPF programs to LSM hooks
+    \item Make security decisions and generate audit logs with eBPF
+\end{itemize}
 \end{frame}
 
 \section{Motivation}
@@ -132,13 +159,14 @@ eBPF is now \textbf{more than just an observability tool}.
 % - Where does this complexity arise from? No unified solution
 % (Maybe the following can go into a separate slide...)
 % - Higher level frameworks as Frankenstein's monster
-% - Higher level frameworks being too coarse-grained (snap vs bpfbox)
+% - Higher level frameworks being too coarse-grained (Snap vs bpfbox)
 
 \begin{frame}[c]{The Status Quo}
 \begin{itemize}
     \item Existing process confinement mechanisms are \textbf{complex}
 \end{itemize}
 \begin{center}
+    \color{black}
     \includegraphics[width=0.8\textwidth]{figs/process-confinement-landscape.pdf}
 \end{center}
 \begin{itemize}
@@ -165,7 +193,7 @@ eBPF is now \textbf{more than just an observability tool}.
 % - Where does this complexity arise from? No unified solution
 % (Maybe the following can go into a separate slide...)
 % - Higher level frameworks as Frankenstein's monster
-% - Higher level frameworks being too coarse-grained (snap vs bpfbox)
+% - Higher level frameworks being too coarse-grained (Snap vs bpfbox)
 
 \begin{frame}[c]{Stakeholders as Policy Authors}
 \begin{itemize}
@@ -183,7 +211,7 @@ eBPF is now \textbf{more than just an observability tool}.
     \item \textbf{Application authors} and \textbf{packagers} define the policy
 \end{itemize}
 \begin{center}
-    \includegraphics[height=4em]{figs/snapcraft.png}
+    \includegraphics[height=4em]{figs/Snapcraft.png}
     \hspace{3em}
     \includegraphics[height=4em]{figs/docker.png}
 \end{center}
@@ -200,7 +228,7 @@ eBPF is now \textbf{more than just an observability tool}.
 % - security experts write policy and ship it with distributions
 %   - SELinux, AppArmor, seccomp-bpf, etc.
 % - application authors write policy and ship it with applications
-%   - snap, etc.
+%   - Snap, etc.
 % - end users write their own policy
 %   - ???
 
@@ -208,52 +236,133 @@ eBPF is now \textbf{more than just an observability tool}.
 TODO
 \end{frame}
 
-\section{bpfbox Architecture}
+\section{bpfbox Implementation}
 
-\begin{frame}[c]{bpfbox Architecture}
+\begin{frame}[c]{bpfbox Implementation}
 \begin{itemize}
-    \item TODO: Python3 bcc
-    \item TODO: KRSI
-    \item TODO: Lines of userspace code
-    \item TODO: Lines of kernelspace code
-    \item TODO: Compare w/ SELinux, AppArmor
+    \item Userspace daemon using the Python3 bcc module
+    \vfill
+    \item Kernelspace components are all eBPF
+    \begin{itemize}
+        \item Tracepoints, kprobes, uprobes, LSM probes (KRSI)
+        \item Under 2000 source lines of code
+    \end{itemize}
+    \vfill
+    \item bpfbox is \textbf{light-weight}, \textbf{flexible}, and \textbf{production-safe}
+    \begin{itemize}
+        \item Works out of the box on any vanilla Linux kernel $\ge 5.8$
+    \end{itemize}
 \end{itemize}
 \end{frame}
 
 \begin{frame}[c]{bpfbox Architecture}
-\vfill
 \begin{center}
     \color{black}
     \includegraphics[width=1\textwidth]{figs/bpfbox-overview.pdf}
 \end{center}
-\vfill
 \end{frame}
 
 \section{bpfbox Policy}
 
+\begin{frame}[c]{Policy Design Goals}
+\begin{enumerate}
+    \item Simplicity
+    \begin{itemize}
+        \item Policy should be simple enough for ad hoc confinement
+    \end{itemize}
+    \vfill
+    \item Application transparency
+    \begin{itemize}
+        \item Policy should not require changes to the confined application
+    \end{itemize}
+    \vfill
+    \item Flexibility
+    \begin{itemize}
+        \item Policy should offer optional layers of granularity
+    \end{itemize}
+    \vfill
+    \item Security
+    \begin{itemize}
+        \item Policy should follow the principle of least privilege
+        \item It should be difficult to write an insecure policy
+    \end{itemize}
+\end{enumerate}
+\end{frame}
+
 \begin{frame}[c, fragile]{Policy at the Function Call Level}
-\begin{lstlisting}[language=bpfbox]
-#![profile /sbin/mylogin]
+\begin{lstlisting}[language=bpfbox, xleftmargin=.25\textwidth]
+#![profile "/sbin/mylogin"]
 
-#[func check_password]
-#[func add_user]
+#[func "check_password"]
 #[allow] {
-    read("/etc/passwd")
-    read("/etc/shadow")
+    fs("/etc/passwd", read)
+    fs("/etc/shadow", read)
 }
 
-#[func add_user]
+#[func "add_user"]
 #[allow] {
-    append("/etc/passwd")
-    append("/etc/shadow")
+    fs("/etc/passwd", read|append)
+    fs("/etc/shadow", read|append)
 }
+
+/* ... */
 \end{lstlisting}
+\end{frame}
+
+\begin{frame}[c]{bpfbox vs Snap}
+\begin{itemize}
+    \item Snap provides
+\end{itemize}
+\vfill
+See our paper for a detailed case study of Apache \texttt{httpd} policy.
 \end{frame}
 
 \section{Performance Evaluation}
 
-\begin{frame}[c]{Performance}
-TODO
+\begin{frame}[c]{Methodology}
+\begin{itemize}
+    \item Phoronix Test Suite OSBench
+    \begin{itemize}
+        \item Measures basic OS functionality
+        \item (spawning processes, memory allocations, etc.)
+    \end{itemize}
+
+    \vfill
+    \item Phoronix Test Suite Apache
+    \begin{itemize}
+        \item Benchmark Apache \texttt{httpd} packets per second
+    \end{itemize}
+
+    \vfill
+    \item Kernel compilation benchmarks
+    \begin{itemize}
+        \item Measure Linux kernel compilation performance
+        \item Heavy workload, spawning lots of processes
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[c]{Results}
+\begin{itemize}
+    \item Phoronix OSBench
+    \begin{itemize}
+        \item Average case: bpfbox is \textbf{roughly equivalent} to AppArmor
+        \item Worst case: bpfbox performs \textbf{significantly better} than AppArmor
+    \end{itemize}
+
+    \vfill
+    \item Phoronix Apache
+    \begin{itemize}
+        \item bpfbox and AppArmor are \textbf{roughly equivalent}
+    \end{itemize}
+
+    \vfill
+    \item Kernel compilation
+    \begin{itemize}
+        \item Average case: bpfbox is \textbf{roughly equivalent} to AppArmor
+        \item Worst case: bpfbox performs \textbf{better in kernelspace} overhead and \textbf{worse in userspace} overhead
+    \end{itemize}
+\end{itemize}
 \end{frame}
 
 \section{Conclusion}
@@ -261,7 +370,7 @@ TODO
 \begin{frame}[c]{Acknowledgements}
 Special thanks to:
 \begin{itemize}
-    \item \textbf{Alexei Starovoitov} and \textbf{Daniel Borkman} (creators of eBPF)
+    \item \textbf{Alexei Starovoitov} and \textbf{Daniel Borkmann} (creators of eBPF)
     \item \textbf{K.P.~Singh} (creator of KRSI)
     \item Fellow \textbf{bcc contributors} (an awesome eBPF framework)
     \item Anonymous \textbf{CCSW'2020 reviewers} (valuable feedback)
@@ -272,7 +381,7 @@ This work was supported by NSERC through a Discovery Grant.
 
 \begin{frame}[c]{Contributions}
 \begin{itemize}
-    \item First full policy \textbf{enforcement engine} written in eBPF
+    \item First policy \textbf{enforcement engine} written in eBPF
     \item Integration of \textbf{userspace} and \textbf{kernelspace} state with \textbf{LSM layer enforcement}
     \item A simple policy language for \textbf{ad hoc process confinement}
     \begin{itemize}
@@ -280,7 +389,8 @@ This work was supported by NSERC through a Discovery Grant.
     \end{itemize}
 \end{itemize}
 \begin{center}
-    \includegraphics[width=0.33\textwidth]{figs/bpfbox-qrcode.png}\\
+    \includegraphics[width=0.33\textwidth]{figs/bpfbox-qrcode.eps}\\
+    \href{https://github.com/willfindlay/bpfbox}{\ttfamily github.com/willfindlay/bpfbox}\\
     Check out the project on GitHub!
 \end{center}
 \end{frame}
