@@ -85,7 +85,7 @@
 
 \begin{document}
 
-%\setwatermark[hoffset=6cm, voffset=0.3cm]{\includegraphics[height=1.5cm]{figs/carleton.pdf}}
+\setwatermark{\includegraphics[height=0.8\textheight]{figs/bpfbox-logo.pdf}}
 
 % Title page
 \begin{frame}[noframenumbering, plain]
@@ -93,12 +93,6 @@
 \end{frame}
 
 \setwatermark[hoffset=6cm, voffset=0.3cm]{}
-
-\begin{frame}[c, noframenumbering, plain]
-    \begin{center}
-        \Huge bpfbox logo here
-    \end{center}
-\end{frame}
 
 \begin{frame}[c, noframenumbering, plain]{Outline of Talk}
     \tableofcontents
@@ -179,9 +173,6 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
     \hspace{3em}
     \includegraphics[height=4em]{figs/tomoyo.png}
 \end{center}
-%\begin{center}
-%    \footnotesize (in order of decreasing difficulty)
-%\end{center}
 \begin{itemize}
     \item Can we do any better?
 \end{itemize}
@@ -196,34 +187,34 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
 % - Higher level frameworks being too coarse-grained (Snap vs bpfbox)
 
 % TODO: do I want this? does it make sense to have it here?
-\begin{frame}[c]{Stakeholders as Policy Authors}
-\begin{itemize}
-    \item \textbf{Security experts} define the policy
-\end{itemize}
-\begin{center}
-    \includegraphics[height=4em]{figs/selinux.png}
-    \hspace{3em}
-    \includegraphics[height=4em]{figs/apparmor.png}
-    \hspace{3em}
-    \includegraphics[height=4em]{figs/tomoyo.png}
-\end{center}
-
-\begin{itemize}
-    \item \textbf{Application authors} and \textbf{packagers} define the policy
-\end{itemize}
-\begin{center}
-    \includegraphics[height=4em]{figs/Snapcraft.png}
-    \hspace{3em}
-    \includegraphics[height=4em]{figs/docker.png}
-\end{center}
-
-\begin{itemize}
-    \item \textbf{End users} define the policy
-\end{itemize}
-\begin{center}
-    \Huge ???
-\end{center}
-\end{frame}
+%\begin{frame}[c]{Stakeholders as Policy Authors}
+%\begin{itemize}
+%    \item \textbf{Security experts} define the policy
+%\end{itemize}
+%\begin{center}
+%    \includegraphics[height=4em]{figs/selinux.png}
+%    \hspace{3em}
+%    \includegraphics[height=4em]{figs/apparmor.png}
+%    \hspace{3em}
+%    \includegraphics[height=4em]{figs/tomoyo.png}
+%\end{center}
+%
+%\begin{itemize}
+%    \item \textbf{Application authors} and \textbf{packagers} define the policy
+%\end{itemize}
+%\begin{center}
+%    \includegraphics[height=4em]{figs/Snapcraft.png}
+%    \hspace{3em}
+%    \includegraphics[height=4em]{figs/docker.png}
+%\end{center}
+%
+%\begin{itemize}
+%    \item \textbf{End users} define the policy
+%\end{itemize}
+%\begin{center}
+%    \Huge ???
+%\end{center}
+%\end{frame}
 
 % - Discuss stakeholders as policy authors:
 % - security experts write policy and ship it with distributions
@@ -298,6 +289,42 @@ We have an opportunity to \textbf{rethink process confinement} from the ground u
 \end{enumerate}
 \end{frame}
 
+\begin{frame}[c, fragile]{Rules and Directives}
+Rules specify access to system objects:
+\begin{itemize}
+    \item \lstinline[language=bpfbox]|fs(file, access)|
+    \item \lstinline[language=bpfbox]|net(socket, access)|
+    \item \lstinline[language=bpfbox]|signal(prog, sig)|
+    \item etc.
+\end{itemize}
+
+\vfill
+Directives augment blocks of rules:
+\begin{itemize}
+    \item \lstinline[language=bpfbox]|#[directive]| syntax
+    \item Specify \textbf{actions to be taken} on a block of rules
+    \item Add \textbf{additional context} to a block of rules
+\end{itemize}
+\end{frame}
+
+\begin{frame}[c, fragile]{Taints and Transitions}
+\begin{lstlisting}[language=bpfbox, xleftmargin=.25\textwidth]
+#![profile "/bin/mywebdaemon"]
+
+#[taint] {
+    net(inet, any)
+\vfill
+    net(inet6, any)
+}
+
+/* ... */
+
+#[transition] {
+    fs("/bin/myhelper", getattr|read|exec)
+}
+\end{lstlisting}
+\end{frame}
+
 \begin{frame}[c, fragile]{Policy at the Function Call Level}
 \begin{lstlisting}[language=bpfbox, xleftmargin=.25\textwidth]
 #![profile "/sbin/mylogin"]
@@ -318,13 +345,32 @@ We have an opportunity to \textbf{rethink process confinement} from the ground u
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}[c]{bpfbox vs.~Snap}
-\begin{itemize}
-    \item Snap provides TODO
-\end{itemize}
-\vfill
-See our paper for a detailed case study of Apache \texttt{httpd} policy.
-\end{frame}
+% TODO: add this back in?
+%\begin{frame}[t]{bpfbox vs.~Snap}
+%\begin{columns}
+%    \begin{column}{0.5\textwidth}
+%        \hfill\includegraphics[height=3em]{figs/bpfbox-logo.pdf}\hfill
+%        \begin{itemize}
+%            \item
+%        \end{itemize}
+%    \end{column}
+%
+%    \begin{column}{0.5\textwidth}
+%        \hfill\includegraphics[height=3em]{figs/snapcraft.png}\hfill
+%        \begin{itemize}
+%            \item
+%        \end{itemize}
+%    \end{column}
+%\end{columns}
+%\vfill
+%\vfill
+%\vfill
+%\vfill
+%\vfill
+%\vfill
+%\vfill
+%See our paper for a detailed case study of Apache \texttt{httpd} policy.
+%\end{frame}
 
 \section{Performance Evaluation}
 
