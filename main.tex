@@ -94,11 +94,101 @@
 
 \setwatermark[hoffset=6cm, voffset=0.3cm]{}
 
-\begin{frame}[c, noframenumbering, plain]{Outline of Talk}
-    \tableofcontents
+%\begin{frame}[c, noframenumbering, plain]{Outline of Talk}
+%    \tableofcontents
+%\end{frame}
+
+\begin{frame}[c]{bpfbox at a Glance}
+\begin{columns}
+    \begin{column}{0.6\textwidth}
+        \begin{itemize}
+            \item bpfbox is a novel \textbf{process confinement mechanism} for Linux%
+            \begin{itemize}
+                \item Using a new Linux technology called eBPF
+            \end{itemize}
+            \vspace{2em}
+            \item Users write per-application policy in a \textbf{simple policy language}
+            \vspace{2em}
+            \item Policy is enforced by attaching \textbf{eBPF programs} to \textbf{LSM hooks}%
+            \begin{itemize}
+                \item Integrates cross-layer state into policy decisions
+            \end{itemize}
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+        \begin{center}
+            \color{black}
+            \includegraphics[width=0.9\textwidth]{figs/bpfbox-logo.pdf}\\
+        \end{center}
+        \vspace{1em}
+    \end{column}
+\end{columns}
 \end{frame}
 
-\section{What is eBPF?}
+\begin{frame}[c]{Motivation}
+\begin{itemize}
+    \item Existing process confinement mechanisms are \textbf{complex}
+\end{itemize}
+\begin{center}
+    \color{black}
+    \includegraphics[width=0.8\textwidth]{figs/process-confinement-landscape.pdf}
+\end{center}
+\begin{itemize}
+    \item Existing process confinement mechanisms are \textbf{difficult to use}
+\end{itemize}
+\begin{center}
+    \color{black}
+    \includegraphics[height=0.2\textheight]{figs/mac.pdf}
+\end{center}
+\begin{itemize}
+    \item Can we do any better?
+\end{itemize}
+\end{frame}
+
+% TODO: do I want this? does it make sense to have it here?
+%\begin{frame}[c]{Stakeholders as Policy Authors}
+%\begin{itemize}
+%    \item \textbf{Security experts} define the policy
+%\end{itemize}
+%\begin{center}
+%    \includegraphics[height=4em]{figs/selinux.png}
+%    \hspace{3em}
+%    \includegraphics[height=4em]{figs/apparmor.png}
+%    \hspace{3em}
+%    \includegraphics[height=4em]{figs/tomoyo.png}
+%\end{center}
+%
+%\begin{itemize}
+%    \item \textbf{Application authors} and \textbf{packagers} define the policy
+%\end{itemize}
+%\begin{center}
+%    \includegraphics[height=4em]{figs/Snapcraft.png}
+%    \hspace{3em}
+%    \includegraphics[height=4em]{figs/docker.png}
+%\end{center}
+%
+%\begin{itemize}
+%    \item \textbf{End users} define the policy
+%\end{itemize}
+%\begin{center}
+%    \Huge ???
+%\end{center}
+%\end{frame}
+
+\begin{frame}[c]{eBPF Changes the Game}
+eBPF enables:
+\begin{itemize}
+    \item Fine-grained system introspection
+    \item Integration of \textbf{cross-layer state} with policy enforcement
+    \item Rapid prototyping
+    \item Safe production deployment of new security solutions
+\end{itemize}
+\vfill
+We have an opportunity to \textbf{rethink process confinement} from the ground up.
+\end{frame}
+
+
+%\section{What is eBPF?}
 
 \begin{frame}[c]{eBPF in the Beginning}
 eBPF $\equiv$ \textbf{E}xtended \textbf{B}erkley \textbf{P}acket \textbf{F}ilter...
@@ -146,7 +236,7 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
 \end{itemize}
 \end{frame}
 
-\section{Motivation}
+%\section{Motivation}
 
 % - Unix DAC, seccomp-bpf, namespaces, cgroups, Linux MAC (SELinux, AppArmor,
 %   TOMOYO, etc.)
@@ -155,88 +245,7 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
 % - Higher level frameworks as Frankenstein's monster
 % - Higher level frameworks being too coarse-grained (Snap vs bpfbox)
 
-\begin{frame}[c]{The Status Quo}
-\begin{itemize}
-    \item Existing process confinement mechanisms are \textbf{complex}
-\end{itemize}
-\begin{center}
-    \color{black}
-    \includegraphics[width=0.8\textwidth]{figs/process-confinement-landscape.pdf}
-\end{center}
-\begin{itemize}
-    \item Existing process confinement mechanisms are \textbf{difficult to use}
-\end{itemize}
-\begin{center}
-    \includegraphics[height=4em]{figs/selinux.png}
-    \hspace{3em}
-    \includegraphics[height=4em]{figs/apparmor.png}
-    \hspace{3em}
-    \includegraphics[height=4em]{figs/tomoyo.png}
-\end{center}
-\begin{itemize}
-    \item Can we do any better?
-\end{itemize}
-\end{frame}
-
-% - Discuss all the access control mechanisms on Linux
-% - Unix DAC, seccomp-bpf, namespaces, cgroups, Linux MAC (SELinux, AppArmor,
-%   TOMOYO, etc.)
-% - Where does this complexity arise from? No unified solution
-% (Maybe the following can go into a separate slide...)
-% - Higher level frameworks as Frankenstein's monster
-% - Higher level frameworks being too coarse-grained (Snap vs bpfbox)
-
-% TODO: do I want this? does it make sense to have it here?
-%\begin{frame}[c]{Stakeholders as Policy Authors}
-%\begin{itemize}
-%    \item \textbf{Security experts} define the policy
-%\end{itemize}
-%\begin{center}
-%    \includegraphics[height=4em]{figs/selinux.png}
-%    \hspace{3em}
-%    \includegraphics[height=4em]{figs/apparmor.png}
-%    \hspace{3em}
-%    \includegraphics[height=4em]{figs/tomoyo.png}
-%\end{center}
-%
-%\begin{itemize}
-%    \item \textbf{Application authors} and \textbf{packagers} define the policy
-%\end{itemize}
-%\begin{center}
-%    \includegraphics[height=4em]{figs/Snapcraft.png}
-%    \hspace{3em}
-%    \includegraphics[height=4em]{figs/docker.png}
-%\end{center}
-%
-%\begin{itemize}
-%    \item \textbf{End users} define the policy
-%\end{itemize}
-%\begin{center}
-%    \Huge ???
-%\end{center}
-%\end{frame}
-
-% - Discuss stakeholders as policy authors:
-% - security experts write policy and ship it with distributions
-%   - SELinux, AppArmor, seccomp-bpf, etc.
-% - application authors write policy and ship it with applications
-%   - Snap, etc.
-% - end users write their own policy
-%   - ???
-
-\begin{frame}[c]{eBPF Changes the Game}
-eBPF enables:
-\begin{itemize}
-    \item Fine-grained system introspection
-    \item Rapid prototyping
-    \item Safe production deployment of new security solutions
-    \item Integration of \textbf{cross-layer state} with policy enforcement
-\end{itemize}
-\vfill
-We have an opportunity to \textbf{rethink process confinement} from the ground up.
-\end{frame}
-
-\section{bpfbox Implementation}
+%\section{bpfbox Implementation}
 
 \begin{frame}[c]{bpfbox Implementation}
 \begin{itemize}
@@ -245,7 +254,7 @@ We have an opportunity to \textbf{rethink process confinement} from the ground u
     \item Kernelspace components are all eBPF
     \begin{itemize}
         \item Tracepoints, kprobes, uprobes, LSM probes (KRSI)
-        \item Under 2000 source lines of code
+        \item Under 2000 source lines of kernelspace code
     \end{itemize}
     \vfill
     \item bpfbox is \textbf{light-weight}, \textbf{flexible}, and \textbf{production-safe}
@@ -253,6 +262,10 @@ We have an opportunity to \textbf{rethink process confinement} from the ground u
         \item Works out of the box on any vanilla Linux kernel $\ge 5.8$
     \end{itemize}
 \end{itemize}
+\begin{center}
+    \color{black}
+    \includegraphics[height=0.33\textheight]{figs/at-a-glance.pdf}
+\end{center}
 \end{frame}
 
 \begin{frame}[c]{bpfbox Architecture}
@@ -262,26 +275,26 @@ We have an opportunity to \textbf{rethink process confinement} from the ground u
 \end{center}
 \end{frame}
 
-\section{bpfbox Policy}
+%\section{bpfbox Policy}
 
 \begin{frame}[c]{Policy Design Goals}
 \begin{enumerate}
-    \item Simplicity
+    \item \textbf{Simplicity}
     \begin{itemize}
         \item Policy should be simple enough for ad hoc confinement
     \end{itemize}
     \vfill
-    \item Application transparency
+    \item \textbf{Application transparency}
     \begin{itemize}
         \item Policy should not require changes to the confined application
     \end{itemize}
     \vfill
-    \item Flexibility
+    \item \textbf{Flexibility}
     \begin{itemize}
         \item Policy should offer optional layers of granularity
     \end{itemize}
     \vfill
-    \item Security
+    \item \textbf{Security}
     \begin{itemize}
         \item Policy should follow the principle of least privilege
         \item It should be difficult to write an insecure policy
@@ -290,7 +303,7 @@ We have an opportunity to \textbf{rethink process confinement} from the ground u
 \end{frame}
 
 \begin{frame}[c, fragile]{Rules and Directives}
-Rules specify access to system objects:
+\textit{Rules} specify access to system objects:
 \begin{itemize}
     \item \lstinline[language=bpfbox]|fs(file, access)|
     \item \lstinline[language=bpfbox]|net(socket, access)|
@@ -299,7 +312,7 @@ Rules specify access to system objects:
 \end{itemize}
 
 \vfill
-Directives augment blocks of rules:
+\textit{Directives} augment blocks of rules:
 \begin{itemize}
     \item \lstinline[language=bpfbox]|#[directive]| syntax
     \item Specify \textbf{actions to be taken} on a block of rules
@@ -308,12 +321,16 @@ Directives augment blocks of rules:
 \end{frame}
 
 \begin{frame}[c, fragile]{Taints and Transitions}
+\begin{itemize}
+    \item \lstinline[language=bpfbox]|#[taint]|  $\rightarrow$ Start confinement
+    \item \lstinline[language=bpfbox]|#[transition]|  $\rightarrow$ Switch profiles on \texttt{execve}
+\end{itemize}
+\vfill
 \begin{lstlisting}[language=bpfbox, xleftmargin=.25\textwidth]
 #![profile "/bin/mywebdaemon"]
 
 #[taint] {
     net(inet, any)
-\vfill
     net(inet6, any)
 }
 
@@ -326,6 +343,11 @@ Directives augment blocks of rules:
 \end{frame}
 
 \begin{frame}[c, fragile]{Policy at the Function Call Level}
+\begin{itemize}
+    \item \lstinline[language=bpfbox]|#[func "foo"]|  $\rightarrow$ Apply rules only within a call to \texttt{foo()}
+    \item \lstinline[language=bpfbox]|#[kfunc "foo"]|  $\rightarrow$ Same thing, but for kernel functions
+\end{itemize}
+\vfill
 \begin{lstlisting}[language=bpfbox, xleftmargin=.25\textwidth]
 #![profile "/sbin/mylogin"]
 
@@ -372,9 +394,9 @@ Directives augment blocks of rules:
 %See our paper for a detailed case study of Apache \texttt{httpd} policy.
 %\end{frame}
 
-\section{Performance Evaluation}
+%\section{Performance Evaluation}
 
-\begin{frame}[c]{Methodology}
+\begin{frame}[c]{Performance Evaluation}{Methodology}
 \begin{itemize}
     \item Phoronix Test Suite OSBench
     \begin{itemize}
@@ -397,7 +419,7 @@ Directives augment blocks of rules:
 \end{itemize}
 \end{frame}
 
-\begin{frame}[c]{Results}
+\begin{frame}[c]{Performance Evaluation}{Results}
 \begin{itemize}
     \item Phoronix OSBench
     \begin{itemize}
@@ -420,7 +442,20 @@ Directives augment blocks of rules:
 \end{itemize}
 \end{frame}
 
-\section{Conclusion}
+%\section{Conclusion}
+
+\begin{frame}[c]{Contributions}
+\begin{itemize}
+    \item First \textbf{policy enforcement engine} written in \textbf{eBPF}
+    \vfill
+    \item Integration of \textbf{userspace} and \textbf{kernelspace} state with \textbf{LSM layer enforcement}
+    \vfill
+    \item A simple policy language for \textbf{ad hoc process confinement}
+    \begin{itemize}
+        \item But with optional complexity for \textbf{fine-grained protection}
+    \end{itemize}
+\end{itemize}
+\end{frame}
 
 \begin{frame}[c]{Acknowledgements}
 Special thanks to:
@@ -430,21 +465,9 @@ Special thanks to:
     \item Fellow \textbf{bcc contributors} (an awesome eBPF framework)
     \item Anonymous \textbf{CCSW'2020 reviewers} (valuable feedback)
 \end{itemize}
-\vfill
 This work was supported by NSERC through a Discovery Grant.
-\end{frame}
-
-\begin{frame}[c]{Contributions}
-\begin{itemize}
-    \item First policy \textbf{enforcement engine} written in eBPF
-    \item Integration of \textbf{userspace} and \textbf{kernelspace} state with \textbf{LSM layer enforcement}
-    \item A simple policy language for \textbf{ad hoc process confinement}
-    \begin{itemize}
-        \item But with optional complexity for \textbf{fine-grained protection}
-    \end{itemize}
-\end{itemize}
 \begin{center}
-    \includegraphics[width=0.33\textwidth]{figs/bpfbox-qrcode.eps}\\
+    \includegraphics[width=0.25\textwidth]{figs/bpfbox-qrcode.eps}\\
     \href{https://github.com/willfindlay/bpfbox}{\ttfamily github.com/willfindlay/bpfbox}\\
     Check out the project on GitHub!
 \end{center}
