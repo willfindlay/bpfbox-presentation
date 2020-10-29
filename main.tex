@@ -195,7 +195,7 @@ We have an opportunity to \textbf{rethink process confinement} from the ground u
 %\section{What is eBPF?}
 
 \begin{frame}[c]{eBPF in the Beginning}
-eBPF $\equiv$ \textbf{E}xtended \textbf{B}erkley \textbf{P}acket \textbf{F}ilter...
+eBPF $\equiv$ \textbf{E}xtended \textbf{B}erkley \textbf{P}acket \textbf{F}ilter
 \begin{itemize}
     \item But it has little to do with Berkley, packets, or filtering nowadays
     \item The name BPF is preserved for historical reasons
@@ -208,7 +208,7 @@ So then \textbf{what is eBPF?}
         \item Alexei Starovoitov and Daniel Borkmann
     \end{itemize}
     \item Merged into the Linux kernel in 2014
-    \item The point was fine-grained, cross-layer \textbf{system introspection}
+    \item The original goal was fine-grained, cross-layer \textbf{system introspection}
 \end{itemize}
 \end{frame}
 
@@ -257,7 +257,7 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
         \begin{itemize}
             \item Userspace daemon using the Python3 bcc framework
             \vspace{2em}
-            \item Kernelspace components are all eBPF
+            \item Kernelspace components are all written in eBPF
             \begin{itemize}
                 \item LSM probes (KRSI), kprobes, uprobes
                 \item Under 2000 source lines of kernelspace code
