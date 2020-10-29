@@ -1,13 +1,11 @@
 # Slide 0: Title Slide
 
-<!--
 - I'm William Findlay from Carleton University and today I'll be talking about
   bpfbox, a new process conferment mechanism we have implemented for Linux using
   a Linux kernel technology called eBPF.
--->
 
-- I'll be presenting bpfbox, a simple yet precise process confinement mechanism
-  leveraging eBPF
+- Today, I'll be presenting bpfbox, a simple yet precise process confinement
+  mechanism leveraging eBPF
 
 - bpfbox is joint work with Anil Somayaji and David Barrera, also of Carleton
   University.
@@ -136,10 +134,24 @@
 
 # Slide 9: bpfbox Architecture
 
-- When bpfbox starts, it loads its BPF programs into the kernel and creates
-  maps to hold policy and process state. It then parses the user-defined policy
-  and loads the corresponding data into the policy maps.
+(NEXT)
 
+- When bpfbox starts, it first loads its BPF programs into the kernel...
+
+(NEXT)
+
+- ...and creates maps to hold policy and process state.
+
+(NEXT)
+
+- After parsing the user-defined policy, it uses a special linked-in C library
+  called libbpfbox to load the policy into policy maps. It does so in directly
+  kernelspace using specialized BPF programs that instrument the library.
+
+(NEXT)
+
+- Sandboxed applications are traced using tracepoints, uprobes, and kprobes
+  which update the corresponding entries in the process state maps.
 - Whenever a sandboxed application requests access to a security-sensitive
   resource, the access request traps to an LSM probe which uses the currently
   active policy and state of the running process to inform its policy decision.

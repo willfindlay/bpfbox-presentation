@@ -8,6 +8,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{beamerthemesimple}
 
+\date{November 9, 2020}
 \title{bpfbox: Simple Precise Process Confinement with eBPF}
 \author{\textbf{William Findlay} \and Anil Somayaji \and David Barrera}
 \institute{Carleton University\\\href{mailto:will@ccsl.carleton.ca}{\ttfamily will@ccsl.carleton.ca}}
@@ -90,6 +91,9 @@
 % Title page
 \begin{frame}[noframenumbering, plain]
 \titlepage
+\vfill
+\vspace{4em}
+{\footnotesize CCSW'2020}
 \end{frame}
 
 \setwatermark[hoffset=6cm, voffset=0.3cm]{}
@@ -248,24 +252,31 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
 %\section{bpfbox Implementation}
 
 \begin{frame}[c]{bpfbox Implementation}
-\begin{itemize}
-    \item Userspace daemon using the Python3 bcc module
-    \vfill
-    \item Kernelspace components are all eBPF
-    \begin{itemize}
-        \item Tracepoints, kprobes, uprobes, LSM probes (KRSI)
-        \item Under 2000 source lines of kernelspace code
-    \end{itemize}
-    \vfill
-    \item bpfbox is \textbf{light-weight}, \textbf{flexible}, and \textbf{production-safe}
-    \begin{itemize}
-        \item Works out of the box on any vanilla Linux kernel $\ge 5.8$
-    \end{itemize}
-\end{itemize}
-\begin{center}
-    \color{black}
-    \includegraphics[height=0.33\textheight]{figs/at-a-glance.pdf}
-\end{center}
+\begin{columns}
+    \begin{column}{0.66\textwidth}
+        \begin{itemize}
+            \item Userspace daemon using the Python3 bcc framework
+            \vspace{2em}
+            \item Kernelspace components are all eBPF
+            \begin{itemize}
+                \item LSM probes (KRSI), kprobes, uprobes
+                \item Under 2000 source lines of kernelspace code
+            \end{itemize}
+            \vspace{2em}
+            \item Thanks to eBPF, bpfbox is \textbf{light-weight}, \textbf{flexible}, and \textbf{production-safe}
+            \begin{itemize}
+                \item Works out of the box on any vanilla Linux kernel $\ge 5.8$
+            \end{itemize}
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+        \begin{center}
+            \color{black}
+            \includegraphics[width=0.9\textwidth]{figs/at-a-glance.pdf}
+        \end{center}
+        \vspace{2em}
+    \end{column}
+\end{columns}
 \end{frame}
 
 \begin{frame}[c]{bpfbox Architecture}
@@ -275,6 +286,36 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
 \end{center}
 \end{frame}
 
+\begin{frame}[c, noframenumbering]{bpfbox Architecture}
+\begin{center}
+    \color{black}
+    \includegraphics[width=1\textwidth]{figs/bpfbox-overview-1.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}[c, noframenumbering]{bpfbox Architecture}
+\begin{center}
+    \color{black}
+    \vspace{0.55em}
+    \includegraphics[width=1\textwidth]{figs/bpfbox-overview-2.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}[c, noframenumbering]{bpfbox Architecture}
+\begin{center}
+    \color{black}
+    \vspace{-0.2em}
+    \includegraphics[width=1\textwidth]{figs/bpfbox-overview-3.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}[c, noframenumbering]{bpfbox Architecture}
+\begin{center}
+    \color{black}
+    \vspace{0.5em}
+    \includegraphics[width=1\textwidth]{figs/bpfbox-overview-4.pdf}
+\end{center}
+\end{frame}
 %\section{bpfbox Policy}
 
 \begin{frame}[c]{Policy Design Goals}
@@ -419,12 +460,30 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
 \end{itemize}
 \end{frame}
 
+\begin{frame}[c]{Performance Evaluation}{Methodology}
+Two modes of operation for each test.
+\vfill
+\begin{itemize}
+    \item Passive mode
+    \begin{itemize}
+        \item bpfbox and AppArmor instrument hooks, but do not enforce or audit
+        \item Test lowest possible overhead
+    \end{itemize}
+    \vfill
+    \item Complaining mode
+    \begin{itemize}
+        \item bpfbox and AppArmor complain about (log) every security-sensitive operation
+        \item Test worst case overhead
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
 \begin{frame}[c]{Performance Evaluation}{Results}
 \begin{itemize}
     \item Phoronix OSBench
     \begin{itemize}
-        \item Average case: bpfbox is \textbf{roughly equivalent} to AppArmor
-        \item Worst case: bpfbox performs \textbf{significantly better} than AppArmor
+        \item Passive: bpfbox is \textbf{roughly equivalent} to AppArmor
+        \item Complaining: bpfbox performs \textbf{significantly better} than AppArmor
     \end{itemize}
 
     \vfill
@@ -436,8 +495,8 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
     \vfill
     \item Kernel compilation
     \begin{itemize}
-        \item Average case: bpfbox is \textbf{roughly equivalent} to AppArmor
-        \item Worst case: bpfbox performs \textbf{better in kernelspace} overhead and \textbf{worse in userspace} overhead
+        \item Passive: bpfbox is \textbf{roughly equivalent} to AppArmor
+        \item Complaining: bpfbox performs \textbf{better in kernelspace} overhead and \textbf{worse in userspace} overhead
     \end{itemize}
 \end{itemize}
 \end{frame}
@@ -465,9 +524,10 @@ Special thanks to:
     \item Fellow \textbf{bcc contributors} (an awesome eBPF framework)
     \item Anonymous \textbf{CCSW'2020 reviewers} (valuable feedback)
 \end{itemize}
+\vfill
 This work was supported by NSERC through a Discovery Grant.
 \begin{center}
-    \includegraphics[width=0.25\textwidth]{figs/bpfbox-qrcode.eps}\\
+    \includegraphics[height=0.4\textheight]{figs/bpfbox-qrcode.eps}\\
     \href{https://github.com/willfindlay/bpfbox}{\ttfamily github.com/willfindlay/bpfbox}\\
     Check out the project on GitHub!
 \end{center}
