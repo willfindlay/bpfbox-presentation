@@ -12,6 +12,7 @@
 \author{\textbf{William Findlay} \and Anil Somayaji \and David Barrera}
 \institute{Carleton University\\\href{mailto:will@ccsl.carleton.ca}{\ttfamily will@ccsl.carleton.ca}}
 
+\usepackage{pdfpages}
 \usepackage{csquotes}
 \usepackage{booktabs}
 
@@ -85,12 +86,16 @@
 
 \begin{document}
 
-\setwatermark{\includegraphics[height=0.8\textheight]{figs/bpfbox-logo.pdf}}
+%\setwatermark{\includegraphics[height=0.8\textheight]{figs/bpfbox-logo.pdf}}
 
 % Title page
-\begin{frame}[noframenumbering, plain]
-\titlepage
-\end{frame}
+%\begin{frame}[noframenumbering, plain]
+%\titlepage
+%\end{frame}
+{
+\setbeamercolor{background canvas}{bg=}
+\includepdf[pages=1]{figs/ebpfio-cover-slide.pdf}
+}
 
 \setwatermark[hoffset=6cm, voffset=0.3cm]{}
 
@@ -102,16 +107,13 @@
 \begin{columns}
     \begin{column}{0.6\textwidth}
         \begin{itemize}
-            \item bpfbox is a novel \textbf{process confinement mechanism} for Linux%
-            \begin{itemize}
-                \item Using a new Linux technology called eBPF
-            \end{itemize}
+            \item bpfbox is a novel \textbf{process confinement mechanism} for Linux using eBPF
             \vspace{2em}
             \item Users write per-application policy in a \textbf{simple policy language}
             \vspace{2em}
-            \item Policy is enforced by attaching \textbf{eBPF programs} to \textbf{LSM hooks}%
+            \item Policy is enforced by attaching \textbf{BPF programs} to \textbf{LSM hooks}%
             \begin{itemize}
-                \item Integrates cross-layer state into policy decisions
+                \item Integrates userspace and kernelspace state into policy decisions
             \end{itemize}
         \end{itemize}
     \end{column}
@@ -179,7 +181,7 @@
 eBPF enables:
 \begin{itemize}
     \item Fine-grained system introspection
-    \item Integration of \textbf{cross-layer state} with policy enforcement
+    \item Integration of \textbf{cross-layer state} (kprobes, uprobes, etc.) with policy enforcement (LSM probes)
     \item Rapid prototyping
     \item Safe production deployment of new security solutions
 \end{itemize}
@@ -190,51 +192,51 @@ We have an opportunity to \textbf{rethink process confinement} from the ground u
 
 %\section{What is eBPF?}
 
-\begin{frame}[c]{eBPF in the Beginning}
-eBPF $\equiv$ \textbf{E}xtended \textbf{B}erkley \textbf{P}acket \textbf{F}ilter...
-\begin{itemize}
-    \item But it has little to do with Berkley, packets, or filtering nowadays
-    \item The name BPF is preserved for historical reasons
-\end{itemize}
-\vfill
-So then \textbf{what is eBPF?}
-\begin{itemize}
-    \item A major re-write of the Linux BPF engine
-    \begin{itemize}
-        \item Alexei Starovoitov and Daniel Borkmann
-    \end{itemize}
-    \item Merged into the Linux kernel in 2014
-    \item The point was fine-grained, cross-layer \textbf{system introspection}
-\end{itemize}
-\end{frame}
+%\begin{frame}[c]{eBPF in the Beginning}
+%eBPF $\equiv$ \textbf{E}xtended \textbf{B}erkley \textbf{P}acket \textbf{F}ilter...
+%\begin{itemize}
+%    \item But it has little to do with Berkley, packets, or filtering nowadays
+%    \item The name BPF is preserved for historical reasons
+%\end{itemize}
+%\vfill
+%So then \textbf{what is eBPF?}
+%\begin{itemize}
+%    \item A major re-write of the Linux BPF engine
+%    \begin{itemize}
+%        \item Alexei Starovoitov and Daniel Borkmann
+%    \end{itemize}
+%    \item Merged into the Linux kernel in 2014
+%    \item The point was fine-grained, cross-layer \textbf{system introspection}
+%\end{itemize}
+%\end{frame}
+%
+%\begin{frame}[c]{What Can eBPF Do?}
+%\begin{center}
+%    \color{black}
+%    \includegraphics[width=0.7\textwidth]{figs/ebpf-overview.pdf}
+%\end{center}
+%\end{frame}
+%
+%\begin{frame}[c]{How eBPF Works}
+%\begin{center}
+%    \color{black}
+%    \includegraphics[height=0.8\textheight]{figs/how-ebpf-works.pdf}
+%\end{center}
+%\end{frame}
 
-\begin{frame}[c]{What Can eBPF Do?}
-\begin{center}
-    \color{black}
-    \includegraphics[height=0.8\textheight]{figs/ebpf-overview.pdf}
-\end{center}
-\end{frame}
-
-\begin{frame}[c]{How eBPF Works}
-\begin{center}
-    \color{black}
-    \includegraphics[height=0.8\textheight]{figs/how-ebpf-works.pdf}
-\end{center}
-\end{frame}
-
-\begin{frame}[c]{eBPF in 2020}
-eBPF is now \textbf{more than just an observability tool}.
-\begin{itemize}
-    \item eBPF provides a \textbf{safe}, \textbf{efficient}, and \textbf{flexible} way for privileged users to extend the kernel
-    \item eBPF turns Linux into a \textbf{programmable kernel}
-\end{itemize}
-\vfill
-Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity \textbf{I}nstrumentation)
-\begin{itemize}
-    \item Attach BPF programs to LSM hooks
-    \item Make security decisions and generate audit logs with eBPF
-\end{itemize}
-\end{frame}
+%\begin{frame}[c]{eBPF in 2020}
+%eBPF is now \textbf{more than just an observability tool}.
+%\begin{itemize}
+%    \item eBPF provides a \textbf{safe}, \textbf{efficient}, and \textbf{flexible} way for privileged users to extend the kernel
+%    \item eBPF is now turning Linux into a \textbf{programmable kernel}
+%\end{itemize}
+%\vfill
+%Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity \textbf{I}nstrumentation)
+%\begin{itemize}
+%    \item Attach BPF programs to LSM hooks
+%    \item Make security decisions and generate audit logs with eBPF
+%\end{itemize}
+%\end{frame}
 
 %\section{Motivation}
 
@@ -248,61 +250,68 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
 %\section{bpfbox Implementation}
 
 \begin{frame}[c]{bpfbox Implementation}
-\begin{itemize}
-    \item Userspace daemon using the Python3 bcc module
-    \vfill
-    \item Kernelspace components are all eBPF
-    \begin{itemize}
-        \item Tracepoints, kprobes, uprobes, LSM probes (KRSI)
-        \item Under 2000 source lines of kernelspace code
-    \end{itemize}
-    \vfill
-    \item bpfbox is \textbf{light-weight}, \textbf{flexible}, and \textbf{production-safe}
-    \begin{itemize}
-        \item Works out of the box on any vanilla Linux kernel $\ge 5.8$
-    \end{itemize}
-\end{itemize}
-\begin{center}
-    \color{black}
-    \includegraphics[height=0.33\textheight]{figs/at-a-glance.pdf}
-\end{center}
+\begin{columns}
+    \begin{column}{0.66\textwidth}
+        \begin{itemize}
+            \item Userspace daemon using the Python3 bcc framework
+            \vspace{2em}
+            \item Kernelspace components are all eBPF
+            \begin{itemize}
+                \item LSM probes (KRSI), kprobes, uprobes, tracepoints
+                \item Under 2000 source lines of kernelspace code
+            \end{itemize}
+            \vspace{2em}
+            \item Thanks to eBPF, bpfbox is \textbf{light-weight}, \textbf{flexible}, and \textbf{production-safe}
+            \begin{itemize}
+                \item Works out of the box on any vanilla Linux kernel $\ge 5.8$
+            \end{itemize}
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+        \begin{center}
+            \color{black}
+            \includegraphics[width=0.9\textwidth]{figs/at-a-glance.pdf}
+        \end{center}
+        \vspace{2em}
+    \end{column}
+\end{columns}
 \end{frame}
 
-\begin{frame}[c]{bpfbox Architecture}
-\begin{center}
-    \color{black}
-    \includegraphics[width=1\textwidth]{figs/bpfbox-overview.pdf}
-\end{center}
-\end{frame}
+%\begin{frame}[c]{bpfbox Architecture}
+%\begin{center}
+%    \color{black}
+%    \includegraphics[width=1\textwidth]{figs/bpfbox-overview.pdf}
+%\end{center}
+%\end{frame}
 
 %\section{bpfbox Policy}
 
-\begin{frame}[c]{Policy Design Goals}
-\begin{enumerate}
-    \item \textbf{Simplicity}
-    \begin{itemize}
-        \item Policy should be simple enough for ad hoc confinement
-    \end{itemize}
-    \vfill
-    \item \textbf{Application transparency}
-    \begin{itemize}
-        \item Policy should not require changes to the confined application
-    \end{itemize}
-    \vfill
-    \item \textbf{Flexibility}
-    \begin{itemize}
-        \item Policy should offer optional layers of granularity
-    \end{itemize}
-    \vfill
-    \item \textbf{Security}
-    \begin{itemize}
-        \item Policy should follow the principle of least privilege
-        \item It should be difficult to write an insecure policy
-    \end{itemize}
-\end{enumerate}
-\end{frame}
+%\begin{frame}[c]{Policy Design Goals}
+%\begin{enumerate}
+%    \item \textbf{Simplicity}
+%    \begin{itemize}
+%        \item Policy should be simple enough for ad hoc confinement
+%    \end{itemize}
+%    \vfill
+%    \item \textbf{Application transparency}
+%    \begin{itemize}
+%        \item Policy should not require changes to the confined application
+%    \end{itemize}
+%    \vfill
+%    \item \textbf{Flexibility}
+%    \begin{itemize}
+%        \item Policy should offer optional layers of granularity
+%    \end{itemize}
+%    \vfill
+%    \item \textbf{Security}
+%    \begin{itemize}
+%        \item Policy should follow the principle of least privilege
+%        \item It should be difficult to write an insecure policy
+%    \end{itemize}
+%\end{enumerate}
+%\end{frame}
 
-\begin{frame}[c, fragile]{Rules and Directives}
+\begin{frame}[c, fragile]{Our Policy Language}{Rules and Directives}
 \textit{Rules} specify access to system objects:
 \begin{itemize}
     \item \lstinline[language=bpfbox]|fs(file, access)|
@@ -320,29 +329,29 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
 \end{itemize}
 \end{frame}
 
-\begin{frame}[c, fragile]{Taints and Transitions}
-\begin{itemize}
-    \item \lstinline[language=bpfbox]|#[taint]|  $\rightarrow$ Start confinement
-    \item \lstinline[language=bpfbox]|#[transition]|  $\rightarrow$ Switch profiles on \texttt{execve}
-\end{itemize}
-\vfill
-\begin{lstlisting}[language=bpfbox, xleftmargin=.25\textwidth]
-#![profile "/bin/mywebdaemon"]
+%\begin{frame}[c, fragile]{Our Policy Language}{Taints and Transitions}
+%\begin{itemize}
+%    \item \lstinline[language=bpfbox]|#[taint]|  $\rightarrow$ Start confinement
+%    \item \lstinline[language=bpfbox]|#[transition]|  $\rightarrow$ Switch profiles on \texttt{execve}
+%\end{itemize}
+%\vfill
+%\begin{lstlisting}[language=bpfbox, xleftmargin=.25\textwidth]
+%#![profile "/bin/mywebdaemon"]
+%
+%#[taint] {
+%    net(inet, any)
+%    net(inet6, any)
+%}
+%
+%/* ... */
+%
+%#[transition] {
+%    fs("/bin/myhelper", getattr|read|exec)
+%}
+%\end{lstlisting}
+%\end{frame}
 
-#[taint] {
-    net(inet, any)
-    net(inet6, any)
-}
-
-/* ... */
-
-#[transition] {
-    fs("/bin/myhelper", getattr|read|exec)
-}
-\end{lstlisting}
-\end{frame}
-
-\begin{frame}[c, fragile]{Policy at the Function Call Level}
+\begin{frame}[c, fragile]{Our Policy Language}{Policy at the Function Call Level}
 \begin{itemize}
     \item \lstinline[language=bpfbox]|#[func "foo"]|  $\rightarrow$ Apply rules only within a call to \texttt{foo()}
     \item \lstinline[language=bpfbox]|#[kfunc "foo"]|  $\rightarrow$ Same thing, but for kernel functions
@@ -396,66 +405,66 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
 
 %\section{Performance Evaluation}
 
-\begin{frame}[c]{Performance Evaluation}{Methodology}
-\begin{itemize}
-    \item Phoronix Test Suite OSBench
-    \begin{itemize}
-        \item Measures basic OS functionality
-        \item (spawning processes, memory allocations, etc.)
-    \end{itemize}
-
-    \vfill
-    \item Phoronix Test Suite Apache
-    \begin{itemize}
-        \item Benchmark Apache \texttt{httpd} packets per second
-    \end{itemize}
-
-    \vfill
-    \item Kernel compilation benchmarks
-    \begin{itemize}
-        \item Measure Linux kernel compilation performance
-        \item Heavy workload, spawning lots of processes
-    \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}[c]{Performance Evaluation}{Results}
-\begin{itemize}
-    \item Phoronix OSBench
-    \begin{itemize}
-        \item Average case: bpfbox is \textbf{roughly equivalent} to AppArmor
-        \item Worst case: bpfbox performs \textbf{significantly better} than AppArmor
-    \end{itemize}
-
-    \vfill
-    \item Phoronix Apache
-    \begin{itemize}
-        \item bpfbox and AppArmor are \textbf{roughly equivalent}
-    \end{itemize}
-
-    \vfill
-    \item Kernel compilation
-    \begin{itemize}
-        \item Average case: bpfbox is \textbf{roughly equivalent} to AppArmor
-        \item Worst case: bpfbox performs \textbf{better in kernelspace} overhead and \textbf{worse in userspace} overhead
-    \end{itemize}
-\end{itemize}
-\end{frame}
+%\begin{frame}[c]{Performance Evaluation}{Methodology}
+%\begin{itemize}
+%    \item Phoronix Test Suite OSBench
+%    \begin{itemize}
+%        \item Measures basic OS functionality
+%        \item (spawning processes, memory allocations, etc.)
+%    \end{itemize}
+%
+%    \vfill
+%    \item Phoronix Test Suite Apache
+%    \begin{itemize}
+%        \item Benchmark Apache \texttt{httpd} packets per second
+%    \end{itemize}
+%
+%    \vfill
+%    \item Kernel compilation benchmarks
+%    \begin{itemize}
+%        \item Measure Linux kernel compilation performance
+%        \item Heavy workload, spawning lots of processes
+%    \end{itemize}
+%\end{itemize}
+%\end{frame}
+%
+%\begin{frame}[c]{Performance Evaluation}{Results}
+%\begin{itemize}
+%    \item Phoronix OSBench
+%    \begin{itemize}
+%        \item Average case: bpfbox is \textbf{roughly equivalent} to AppArmor
+%        \item Worst case: bpfbox performs \textbf{significantly better} than AppArmor
+%    \end{itemize}
+%
+%    \vfill
+%    \item Phoronix Apache
+%    \begin{itemize}
+%        \item bpfbox and AppArmor are \textbf{roughly equivalent}
+%    \end{itemize}
+%
+%    \vfill
+%    \item Kernel compilation
+%    \begin{itemize}
+%        \item Average case: bpfbox is \textbf{roughly equivalent} to AppArmor
+%        \item Worst case: bpfbox performs \textbf{better in kernelspace} overhead and \textbf{worse in userspace} overhead
+%    \end{itemize}
+%\end{itemize}
+%\end{frame}
 
 %\section{Conclusion}
 
-\begin{frame}[c]{Contributions}
-\begin{itemize}
-    \item First \textbf{policy enforcement engine} written in \textbf{eBPF}
-    \vfill
-    \item Integration of \textbf{userspace} and \textbf{kernelspace} state with \textbf{LSM layer enforcement}
-    \vfill
-    \item A simple policy language for \textbf{ad hoc process confinement}
-    \begin{itemize}
-        \item But with optional complexity for \textbf{fine-grained protection}
-    \end{itemize}
-\end{itemize}
-\end{frame}
+%\begin{frame}[c]{Contributions}
+%\begin{itemize}
+%    \item First \textbf{policy enforcement engine} written in \textbf{eBPF}
+%    \vfill
+%    \item Integration of \textbf{userspace} and \textbf{kernelspace} state with \textbf{LSM layer enforcement}
+%    \vfill
+%    \item A simple policy language for \textbf{ad hoc process confinement}
+%    \begin{itemize}
+%        \item But with optional complexity for \textbf{fine-grained protection}
+%    \end{itemize}
+%\end{itemize}
+%\end{frame}
 
 \begin{frame}[c]{Acknowledgements}
 Special thanks to:
@@ -463,11 +472,12 @@ Special thanks to:
     \item \textbf{Alexei Starovoitov} and \textbf{Daniel Borkmann} (creators of eBPF)
     \item \textbf{K.P.~Singh} (creator of KRSI)
     \item Fellow \textbf{bcc contributors} (an awesome eBPF framework)
-    \item Anonymous \textbf{CCSW'2020 reviewers} (valuable feedback)
+    %\item Anonymous \textbf{CCSW'2020 reviewers} (valuable feedback)
 \end{itemize}
+\vfill
 This work was supported by NSERC through a Discovery Grant.
 \begin{center}
-    \includegraphics[width=0.25\textwidth]{figs/bpfbox-qrcode.eps}\\
+    \includegraphics[height=0.4\textheight]{figs/bpfbox-qrcode.eps}\\
     \href{https://github.com/willfindlay/bpfbox}{\ttfamily github.com/willfindlay/bpfbox}\\
     Check out the project on GitHub!
 \end{center}

@@ -1,16 +1,21 @@
 # Slide 0: Title Slide
 
+<!--
 - I'm William Findlay from Carleton University and today I'll be talking about
-  a new process conferment mechanism we have implemented for Linux using a Linux
-  kernel technology called eBPF.
+  bpfbox, a new process conferment mechanism we have implemented for Linux using
+  a Linux kernel technology called eBPF.
+-->
+
+- I'll be presenting bpfbox, a simple yet precise process confinement mechanism
+  leveraging eBPF
+
 - bpfbox is joint work with Anil Somayaji and David Barrera, also of Carleton
   University.
 
 # Slide 1: bpfbox at a Glance
 
 - At a glance, bpfbox represents a new approach to process confinement under the
-  Linux kernel, enabled by eBPF, a kernel extension and observability tool for
-  the Linux kernel.
+  Linux kernel, enabled by eBPF, a kernel extension and observability framework.
 
 - Users write per-application policy in a simple policy language and policy is
   then loaded and enforced in the kernel using eBPF programs attached to LSM
@@ -31,7 +36,7 @@
 - Higher level process confinement mechanisms on Linux such as Snap and Docker
   are generally made up of a combination of multiple lower level techniques. The
   idea is that these techniques taken together can produce a complete solution.
-  Often, policy is defined by writing high level package manifests for the
+  Often, the policy is defined by writing high level package manifests for the
   application which are then translated into the underlying policy mechanisms.
   Unfortunately this often results in policy that is easy to write but difficult
   to audit and often overly permissive.
@@ -60,15 +65,18 @@
 # Slide 4: eBPF in the Beginning
 
 - eBPF stands for Extended Berkeley Packet Filter... But it actually has very
-  little to do with Berkeley, packets, or filtering nowadays. Rather, the BPF
-  part of the name is preserved for historical reasons.
+  little to do with Berkeley, packets, or filtering nowadays. In the beginning,
+  BPF was designed to provide efficient and safe packet filtering capabilities
+  for Unix. The name is now preserved for historical reasons, but packet
+  filtering is a small subset of modern eBPF's capabilities.
 
 - So then what _is_ eBPF?
 - eBPF is a major re-write of the Linux BPF engine merged into the mainline
   kernel in 2014 by Alexei Starovoitov and Daniel Borkmann. It allows privileged
   users to load programs into the kernel that are then attached to specific
   system events. The original point of eBPF was offering fine-grained,
-  cross-layer system introspection.
+  cross-layer system introspection. BPF programs could be written to observe
+  userspace and kernelspace, as well as the interfaces between the two.
 
 # Slide 5: What Can eBPF Do?
 
@@ -83,9 +91,10 @@
 # Slide 6: How eBPF Works
 
 - eBPF works by compiling code written in the C programming language into
-  a special BPF bytecode with its own special instruction set. From there, the
+  a special BPF bytecode with its own eBPF instruction set. From there, the
   user can select one of many BPF front-end frameworks to load the BPF program
-  into the kernel via the BPF system call.
+  into the kernel via the BPF system call. BPF frameworks are offered as libraries
+  for many major programming languages, including Python, Go, C/C++, and Rust.
 
 - Once loaded, an in-kernel verifier analyzes the code for safety before either
   accepting or rejecting it. Once a BPF program is accepted, it is attached to
@@ -105,19 +114,19 @@
 - In the security space, a good example of this paradigm shift is the Linux 5.7
   KRSI framework. KRSI allows BPF programs to be attached to LSM hooks, which
   can then make security decisions and generate audit logs in real time. bpfbox
-  uses these BPF LSM programs to implement its policy enforcement.
+  uses these BPF LSM programs to implement its policy enforcement mechanism.
 
 # Slide 8: bpfbox Implementation
 
-- In userspace, bpfbox runs as a privileged daemon that leverages Python3's bcc
-  framework to compile and load its BPF programs into the kernel.
+- In userspace, bpfbox runs as a privileged daemon that leverages the bcc
+  framework for Python to compile and load its BPF programs into the kernel.
 
 - All of bpfbox's kernelspace components are written in eBPF, and utilize several
   classes of BPF programs.
   - Tracepoints provide a stable interface for attaching to various kernelspace
     mechanisms such as system calls and the scheduler.
-  - kprobes and uprobes provide an interface for attaching onto kernelspace and
-    userspace function calls respectively.
+  - kprobes and uprobes provide an interface for dynamically attaching onto
+    kernelspace and userspace function calls respectively.
   - Finally, LSM probes allow BPF programs to be attached to LSM hooks, which can
     then be used to enforce security policy and generate audit logs.
 
@@ -145,7 +154,9 @@
 2. bpfbox policy should be application transparent, and shouldn't require any
    changes to the source code of the confined application.
 
-3. bpfbox policy should be flexible, offering optional layers of granularity.
+3. bpfbox policy should be flexible, offering optional layers of granularity, so
+   that it can provide optional fine-grained protection while its base
+   functionality remains easy to use.
 
 4. bpfbox policy should follow the principle of least privilege, and it should
    be difficult to write an insecure policy.
@@ -156,11 +167,12 @@
   augmented by directives.
 
 - Rules specify access to various system objects, and generally take an
-  identifier to specify the object and one or more modes of access.
+  identifier, such as a pathname, to specify the object and one or more modes of
+  access.
 
 - Directives are used to augment blocks of rules and are written using a special
   syntax. In general, directives can either be used to specify an action that
-  should be taken on a group of riles, or to specify additional context for
+  should be taken on a group of rules, or to specify additional context for
   a group of rules.
 
 # Slide 12: Taints and Transitions
@@ -199,15 +211,21 @@
   of benchmarking tests. In each test, we compared bpfbox's overhead to the
   overhead of AppArmor.
 
-- The Phoronix OSBench suite measures a basic operating system functionality,
-  such as spawning processes, memory allocations, and filesystem accesses.
+- The Phoronix OSBench suite measures basic operating system functionality,
+  such as spawning processes, memory allocations, and filesystem accesses. These
+  tests generally strongly reflect the kind of events that bpfbox interposes on,
+  and thus can provide a general idea of bpfbox's overhead on the overall
+  system.
 
 - The Phoronix Apache suite measures the performance of the Apache httpd
-  webserver based on how many packets it can process per second.
+  webserver based on how many packets it can process per second. This gives us
+  an idea of bpfbox's relative overhead on a busy webserver workload.
 
 - Finally, we used an ad-hoc kernel compilation benchmark to measure the
   userspace, kernelspace, and elapsed-time overhead of Linux kernel compilation.
-  This test involves a heavy workload that spawns a large amount of processes.
+  This test involves a heavy workload that spawns a large amount of processes,
+  which is useful for measuring bpfbox's performance overhead on a very
+  computationally heavy task.
 
 
 # Slide 15: Performance Evaluation (Results)
@@ -223,14 +241,17 @@
   roughly equivalent to AppArmor, while in the worst case bpfbox performs better
   in kernelspace overhead and worse in userspace overhead.
 
+- In all cases, bpfbox exhibited less than 15% overhead on the running system,
+  which we find to be acceptable in practice.
+
 # Slide 16: Contributions
 
 - In summary, we have implemented the first policy enforcement engine written in
   eBPF.
 
 - Our solution allows for the integration of userspace and kernelspace system
-  state with LSM layer enforcement, something which no existing process
-  confinement mechanism can do.
+  state with LSM layer enforcement, which enables the creation of very
+  fine-grained policy, transparent to the target application.
 
 - Finally, we were able to prototype a simple policy language that can be
   used for ad hoc process confinement, but which can optionally be used to
@@ -243,3 +264,5 @@
   enabled BPF LSM programs, my fellow bcc contributors for creating an awesome
   eBPF framework, and the anonymous CCSW reviewers for providing valuable
   feedback on our paper.
+
+- bpfbox is free and open source software, and is available at the link below.
