@@ -1,11 +1,8 @@
 # Slide 0: Title Slide
 
 - I'm William Findlay from Carleton University and today I'll be talking about
-  bpfbox, a new process conferment mechanism we have implemented for Linux using
-  a Linux kernel technology called eBPF.
-
-- Today, I'll be presenting bpfbox, a simple yet precise process confinement
-  mechanism leveraging eBPF
+  bpfbox, a new process conferment mechanism we have implemented using a Linux
+  kernel technology called eBPF.
 
 - bpfbox is joint work with Anil Somayaji and David Barrera, also of Carleton
   University.
@@ -90,7 +87,7 @@
 
 - eBPF works by compiling code written in the C programming language into
   a special BPF bytecode with its own eBPF instruction set. From there, the
-  user can select one of many BPF front-end frameworks to load the BPF program
+  user can select one of many BPF front-end frameworks to load the program
   into the kernel via the BPF system call. BPF frameworks are offered as libraries
   for many major programming languages, including Python, Go, C/C++, and Rust.
 
@@ -121,18 +118,20 @@
 
 - All of bpfbox's kernelspace components are written in eBPF, and utilize several
   classes of BPF programs.
-  - Tracepoints provide a stable interface for attaching to various kernelspace
-    mechanisms such as system calls and the scheduler.
-  - kprobes and uprobes provide an interface for dynamically attaching onto
-    kernelspace and userspace function calls respectively.
-  - Finally, LSM probes allow BPF programs to be attached to LSM hooks, which can
-    then be used to enforce security policy and generate audit logs.
+  - The LSM probes provided by KRSI serve as the basis for bpfbox's policy
+    enforcement and audit mechanism,
+  - while kprobes and uprobes provide an interface for dynamically attaching
+    onto kernelspace and userspace function calls respectively.
+  - In total, bpfbox is implemented in under 2000 source lines of kernelspace
+    code
 
 - Thanks to eBPF, bpfbox's implementation is light-weight, flexible,
   and production-safe. It works out of the box on any vanilla Linux kernel
   version 5.8 or higher.
 
 # Slide 9: bpfbox Architecture
+
+*Possibly come back make this longer*
 
 (NEXT)
 
@@ -175,6 +174,8 @@
 
 # Slide 11: Rules and Directives
 
+*Possibly come back make this longer*
+
 - bpfbox policy at its core consists of a series of rules that can be optionally
   augmented by directives.
 
@@ -206,10 +207,15 @@
 # Slide 13: Policy at the Function Call Level
 
 - One of bpfbox's more unique features is its ability to augment policy with
-  additional context. A special "func" directive is used to specify that a block
-  of rules should only apply within a call to a given userspace function.
+  additional system context. A special "func" directive is used to specify
+  that a block of rules should only apply within a call to a given
+  userspace function.
 
 - The "kfunc" directive does the same thing, but with a kernel function instead.
+
+- This extra context allows users to optionally define very fine-grained policies,
+  taking advantage of eBPF's ability to instrument across the userspace
+  and kernelspace boundaries
 
 - In this example, we have a simplified profile for a login program. It is
   allowed to read `/etc/passwd` and `/etc/shadow` within a call to the
@@ -221,7 +227,7 @@
 
 - We evaluated bpfbox's performance impact on the running system using a variety
   of benchmarking tests. In each test, we compared bpfbox's overhead to the
-  overhead of AppArmor.
+  overhead of AppArmor, a popular LSM mandatory access control framework.
 
 - The Phoronix OSBench suite measures basic operating system functionality,
   such as spawning processes, memory allocations, and filesystem accesses. These
@@ -239,24 +245,44 @@
   which is useful for measuring bpfbox's performance overhead on a very
   computationally heavy task.
 
+# Slide 15: Performance Evaluation (Methodology)
 
-# Slide 15: Performance Evaluation (Results)
+- For each test case, we considered two distinct modes of operation for bpfbox
+  and AppArmor.
 
-- Our OSBench results showed that, in the average case, bpfbox's overhead is
-  roughly equivalent to AppArmor, while in the worst case bpfbox performs
-  significantly better than AppArmor.
+- Passive mode tests involved running bpfbox and AppArmor in the background
+  without defining any relevant security policy, to capture the overhead
+  imposed on unconfined processes
+
+- Complaining mode tests involved writing security policy such that they logged
+  every security sensitive event in the benchmarks. This allowed us to capture
+  the worst case overhead for both systems.
+
+# Slide 16: Performance Evaluation (Results)
+
+- Our OSBench results showed that, in the passive tests, bpfbox's overhead is
+  roughly equivalent to AppArmor, while in the complaining tests bpfbox performs
+  significantly better than AppArmor. Since these tests involved a significant
+  amount of LSM events with relatively little CPU time, we believe that
+  the results are explained by the efficiency of bpfbox's logging mechanism
+  which buffers data in kernelspace before submitting to userspace.
 
 - Our Apache httpd benchmarks showed that bpfbox and AppArmor exhibited roughly
-  equivalent overhead under the artificial workload,
+  equivalent overhead under the artificial workload. Since this test involved
+  a more realistic workload, the efficiency of bpfbox's logging mechanism
+  was less of a factor here.
 
-- Our kernel compilation benchmarks showed that, in the average case, bpfbox is
-  roughly equivalent to AppArmor, while in the worst case bpfbox performs better
-  in kernelspace overhead and worse in userspace overhead.
+- Our kernel compilation benchmarks showed that, once again in the passive case,
+bpfbox is roughly equivalent to AppArmor, while in the complaining case bpfbox
+performs better in kernelspace overhead and worse in userspace overhead. We
+believe that this result is due to the fact that bpfbox's userspace daemon was
+consuming CPU time in userspace that would otherwise would have gone toward the
+compiler.
 
 - In all cases, bpfbox exhibited less than 15% overhead on the running system,
   which we find to be acceptable in practice.
 
-# Slide 16: Contributions
+# Slide 17: Contributions
 
 - In summary, we have implemented the first policy enforcement engine written in
   eBPF.
@@ -269,7 +295,7 @@
   used for ad hoc process confinement, but which can optionally be used to
   augment rules with system state for fine-grained protection.
 
-# Slide 17: Acknowledgements
+# Slide 18: Acknowledgements
 
 - We would like to thank Alexei Starovoitov and Daniel Borkmann for spearheading
   the creation of the new BPF, K.P. Singh for writing the KRSI patch that
