@@ -130,11 +130,11 @@ Why do we want to do this?
 \begin{itemize}
     \item Default protection mechanisms are too:
     \begin{itemize}
-        \item Granular
+        \item Coarse-grained
         \item User-centric
         \item Discretionary
     \end{itemize}
-    \item Protection can be \textbf{overridden}
+    \item DAC can be \textbf{overridden}
     \begin{itemize}
         \item Superuser (*nix)
         \item Administrator (Windows)
@@ -154,6 +154,7 @@ How do we protect the user from \textit{themselves} and \textit{their own proces
     \item Probably a lot more than you think
     \item You probably didn't start most of them yourself
     \item You might not even know what some of them are for
+    \item \textbf{Do you trust them?}
 \end{itemize}
 \end{frame}
 
@@ -240,7 +241,7 @@ How do we protect the user from \textit{themselves} and \textit{their own proces
         \begin{center}
             \includegraphics[width=0.6\textwidth]{figs/lampson/1.png}
         \end{center}
-        \item An open problem for nearly \textbf{five decades}
+        \item A (mostly) open problem for nearly \textbf{five decades}
     \end{itemize}
 \end{frame}
 
@@ -255,27 +256,217 @@ How do we protect the user from \textit{themselves} and \textit{their own proces
 \section{The Status Quo}
 
 \begin{frame}[c]{Unix DAC}
-
+\begin{itemize}
+    \item \textbf{User-centric} permissions
+    \item Permission bits and ACLs
+\end{itemize}
+\begin{center}
+    \color{black}
+    \includegraphics[height=6em]{figs/unix-dac.pdf}
+\end{center}
+Problems?
+\begin{itemize}
+    \item My own processes can still access all my files
+    \item Abuse of DAC for \enquote{confinement}
+    \item \texttt{root}-owned processes ignore everything
+    \item \texttt{chmod -R 777 .} (I've seen too many COMP3000 students do this)
+\end{itemize}
 \end{frame}
 
 \begin{frame}[c]{POSIX Capabilities}
+\begin{itemize}
+    \item All-or-nothing superuser privileges are a problem
+    \item Split them up into capabilities
+    \begin{itemize}
+        \item \texttt{CAP\_DAC\_OVERRIDE} (override DAC)
+        \item \texttt{CAP\_CHOWN} (change file owners)
+        \item \texttt{CAP\_NET\_BIND\_SERVICE} (bind to privileged ports)
+        \item etc.
+    \end{itemize}
+\end{itemize}
+\vfill
+Pick your poison:
+\begin{itemize}
+    \item Replace SUID binaries with capabilities as xattrs
+    \item Drop capabilities with \texttt{prctl(2)}
+\end{itemize}
+\end{frame}
 
+\begin{frame}[c]{POSIX Capabilities}
+Problems?
+\begin{itemize}
+    \item Dropping capabilities requires \textbf{modifying applications}
+    \item \textbf{Complicates} the Linux permission model (40 new permission bits and counting)
+    \item Doesn't really \textbf{solve} process confinement
+    \begin{itemize}
+        \item Unprivileged processes are still a problem
+        \item A process under your own UID can still access your files, do networking, read keyboard input, etc.
+    \end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}[c]{Namespaces and Cgroups}
+Namespaces
+\begin{itemize}
+    \item Virtualize enumerable resources
+    \item Give a process group a \textbf{private view} of the resources
+    \item PID namespace, UID namespace, Mount namespace, etc.
+\end{itemize}
+\vfill
+Cgroups
+\begin{itemize}
+    \item Limit availability of system resources
+    \item Memory, CPU, etc.
+\end{itemize}
+\end{frame}
 
+\begin{frame}[c]{Namespaces and Cgroups}
+Problems?
+\begin{itemize}
+    \item Not so easy for end users to configure
+    \item Not application transparent on their own
+    \item Not a full confinement implementation
+    \begin{itemize}
+        \item We have \textbf{virtualization}, but we don't have \textbf{least-privilege}
+        \item Needs to be combined with \textit{something else}
+    \end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}[c]{System Call Interposition}
+Linux \texttt{seccomp-bpf} (\textbf{NOT} eBPF)
+\begin{itemize}
+    \item Processes call \texttt{seccomp(2)} to enter a secure mode
+    \item All system calls are denied except:
+    \begin{itemize}
+        \item \texttt{read(2)}
+        \item \texttt{write(2)}
+        \item \texttt{sigreturn(2)}
+        \item \texttt{exit(2)}
+    \end{itemize}
+    \item Applications can write classic BPF programs to allow additional system calls
+\end{itemize}
+\vfill
+Problems?
+\begin{itemize}
+    \item Not application-transparent
+    \item Classic BPF is \textbf{arcane}
+    \item Equivalent system calls (e.g.~\texttt{open(2)} and \texttt{openat(2)})
+    \item Do users understand system call semantics?
+\end{itemize}
+\end{frame}
 
+\begin{frame}[c]{System Call Interposition}
+OpenBSD \texttt{pledge}
+\begin{itemize}
+    \item Group system calls into higher-level, meaningful categories
+    \item For example, \texttt{stdio} includes \texttt{read(2)} and \texttt{write(2)}
+    \item A process commits to what it wants to use before calling \texttt{pledge(2)}
+\end{itemize}
+\vfill
+Problems?
+\begin{itemize}
+    \item Not application-transparent
+    \item Too \textbf{coarse-grained}
+    \item A process can escape the sandbox with \texttt{execve(2)}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[c]{System Call Interposition}
+FreeBSD \texttt{capsicum}
+\begin{itemize}
+    \item Implements \textit{capabilities} (\textbf{NOT} POSIX capabilities)
+    \item A process receives capabilities from the OS as file descriptors
+    \item These capabilities restrict access to global namespaces
+    \item The process calls \texttt{cap\_enter} to enter \textit{capability mode}
+\end{itemize}
+\vfill
+Problems?
+\begin{itemize}
+    \item Not application-transparent
+    \item More usable than \texttt{seccomp-bpf}, but still meant for security experts
+\end{itemize}
 \end{frame}
 
 \begin{frame}[c]{Linux MAC}
+\begin{center}
+    \color{black}
+    \includegraphics[width=0.55\textwidth]{figs/lsm.pdf}
+\end{center}
+\end{frame}
 
+\begin{frame}[c]{Linux MAC}
+\begin{columns}[c]
+    \begin{column}{0.4\textwidth}
+        {\large SELinux sucks.}
+        \begin{center}
+            \tiny \texttt{apache.te}\\
+            \includegraphics[width=1\textwidth]{figs/mac/selinux-sucks1.png}\\
+            \texttt{apache.fc}\\
+            \includegraphics[width=1\textwidth]{figs/mac/selinux-sucks2.png}\\
+            \texttt{apache.if}\\
+            \includegraphics[width=1\textwidth]{figs/mac/selinux-sucks3.png}
+        \end{center}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+        \begin{itemize}
+            \item Each file on the left is actually \textit{thousands} of lines
+            of the same nonsense
+            \item This problem is generalizable across MAC implementations
+            \item Policy is designed to be written by \textbf{security experts}
+            \item Not suitable for ad-hoc confinement
+        \end{itemize}
+    \end{column}
+\end{columns}
 \end{frame}
 
 \begin{frame}[c]{Containers / Containerized Package Management}
+High level policy.
+\begin{itemize}
+    \item Package maintainers write coarse-grained package manifests
+    \item Users supply command line arguments
+\end{itemize}
+\vfill
+Complex enforcement.
+\begin{itemize}
+    \item Virtualization with namespaces, cgroups, filesystem mounts
+    \item Least-privilege with seccomp-bpf, SELinux, AppArmor
+    \item \textbf{Whole userlands} need to be secured for \textbf{each application}
+\end{itemize}
+\end{frame}
 
+\begin{frame}[c]{Containers / Containerized Package Management}
+Problems?
+\begin{itemize}
+    \item Overpermission:
+    \begin{itemize}
+        \item Permissions are \textbf{overly-generalized}, not application specific
+    \end{itemize}
+    \vfill
+    \item Auditability:
+    \begin{itemize}
+        \item \textbf{Four} line package manifest
+        \item \textbf{Thousands} of lines of AppArmor/seccomp-bpf
+    \end{itemize}
+    \vfill
+    \item Usability:
+    \begin{itemize}
+        \item What command line arguments do I use for application $x$?
+        \item What if I want to write my own policy?
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[c]{Main Takeaways}
+\begin{enumerate}
+    \item Process confinement is \textbf{hard to get right}.
+    \item Trade-off between \textbf{usability} and \textbf{security}.
+    \item Trade-off between \textbf{terseness} and \textbf{expressiveness}.
+\end{enumerate}
+\vfill
+\begin{center}
+\LARGE Process confinement is \textit{not} a solved problem.
+\end{center}
 \end{frame}
 
 \section{eBPF 101}
@@ -313,15 +504,59 @@ So then \textbf{what is eBPF?}
 \end{frame}
 
 \begin{frame}[c]{Verifiably Safe Programs}
+Limited instruction set.
+\begin{itemize}
+    \item 11 registers (10 general purpose)
+    \item 114 instructions (vs 2000+ in x86)
+    \item Access to a limited set of \textbf{kernel helpers} with \texttt{call} instruction
+\end{itemize}
+\vfill
 Restricted execution context.
 \begin{itemize}
     \item 512 byte stack limit
-    \item 11 registers (10 general purpose)
     \item Memory access must be bounds-checked
     \item No unbounded loops
     \item No back-edges in control flow
+    \item \textbf{eBPF is not Turing complete}
 \end{itemize}
 \end{frame}
+
+%\begin{frame}[c, fragile]{eBPF vs Speculative Execution}
+%Verifier detects it and \textbf{re-writes} the program, forces it into a safe range.
+%\vspace{2em}
+%\begin{columns}[t]
+%    \begin{column}{0.3\textwidth}
+%        Before:
+%\begin{lstlisting}[language=c]
+%int arr[BUFF_SIZE];
+%int i = 0;
+%
+%/* ... */
+%
+%if (i < BUFF_SIZE) {
+%    int foo = arr[i];
+%}
+%\end{lstlisting}
+%    \end{column}
+%    \begin{column}{0.6\textwidth}
+%        After:
+%\begin{lstlisting}[language=c]
+%int arr[BUFF_SIZE];
+%int i = 0;
+%
+%/* ... */
+%
+%if (i < BUFF_SIZE) {
+%    // magic to convert i into a masked index
+%    i = ~(long)(i | (BUFF_SIZE - 1 - i)) >> 63;
+%    int foo = arr[i];
+%}
+%\end{lstlisting}
+%    \end{column}
+%\end{columns}
+%\vfill
+%{\footnotesize Example adapted from Alexei Starovoitov's 2020 eBPF summit talk.}
+%\end{frame}
 
 \begin{frame}[c]{eBPF in 2020}
 eBPF is now \textbf{more than just an observability tool}.
@@ -338,9 +573,10 @@ Linux 5.7 $\rightarrow$ KRSI (\textbf{K}ernel \textbf{R}untime \textbf{S}ecurity
 \end{frame}
 
 \begin{frame}[c]{KRSI: BPF LSM Programs}
-\begin{itemize}
-    \item TODO explain KRSI with a picture
-\end{itemize}
+\begin{center}
+    \color{black}
+    \includegraphics[width=0.8\textwidth]{figs/ebpf-lsm.pdf}
+\end{center}
 \end{frame}
 
 \section{bpfbox Overview}
@@ -443,72 +679,6 @@ We have an opportunity to \textbf{rethink process confinement} from the ground u
 
 \section{bpfbox Design and Implementation}
 
-\begin{frame}[c]{bpfbox Implementation}
-\begin{columns}
-    \begin{column}{0.66\textwidth}
-        \begin{itemize}
-            \item Userspace daemon using the Python3 bcc framework
-            \vspace{2em}
-            \item Kernelspace components are all written in eBPF
-            \begin{itemize}
-                \item LSM probes (KRSI), kprobes, uprobes
-                \item Under 2000 source lines of kernelspace code
-            \end{itemize}
-            \vspace{2em}
-            \item Thanks to eBPF, bpfbox is \textbf{light-weight}, \textbf{flexible}, and \textbf{production-safe}
-            \begin{itemize}
-                \item Works out of the box on any vanilla Linux kernel $\ge 5.8$
-            \end{itemize}
-        \end{itemize}
-    \end{column}
-    \begin{column}{0.33\textwidth}
-        \begin{center}
-            \color{black}
-            \includegraphics[width=0.9\textwidth]{figs/at-a-glance.pdf}
-        \end{center}
-        \vspace{2em}
-    \end{column}
-\end{columns}
-\end{frame}
-
-\begin{frame}[c]{bpfbox Architecture}
-\begin{center}
-    \color{black}
-    \includegraphics[width=1\textwidth]{figs/bpfbox-overview.pdf}
-\end{center}
-\end{frame}
-
-%\begin{frame}[c, noframenumbering]{bpfbox Architecture}
-%\begin{center}
-%    \color{black}
-%    \includegraphics[width=1\textwidth]{figs/bpfbox-overview-1.pdf}
-%\end{center}
-%\end{frame}
-%
-%\begin{frame}[c, noframenumbering]{bpfbox Architecture}
-%\begin{center}
-%    \color{black}
-%    \vspace{0.55em}
-%    \includegraphics[width=1\textwidth]{figs/bpfbox-overview-2.pdf}
-%\end{center}
-%\end{frame}
-%
-%\begin{frame}[c, noframenumbering]{bpfbox Architecture}
-%\begin{center}
-%    \color{black}
-%    \vspace{-0.2em}
-%    \includegraphics[width=1\textwidth]{figs/bpfbox-overview-3.pdf}
-%\end{center}
-%\end{frame}
-%
-%\begin{frame}[c, noframenumbering]{bpfbox Architecture}
-%\begin{center}
-%    \color{black}
-%    \vspace{0.5em}
-%    \includegraphics[width=1\textwidth]{figs/bpfbox-overview-4.pdf}
-%\end{center}
-%\end{frame}
-
 \begin{frame}[c]{Policy Design Goals}
 \begin{enumerate}
     \item \textbf{Simplicity}
@@ -598,6 +768,73 @@ We have an opportunity to \textbf{rethink process confinement} from the ground u
 /* ... */
 \end{lstlisting}
 \end{frame}
+
+\begin{frame}[c]{bpfbox Implementation}
+\begin{columns}
+    \begin{column}{0.66\textwidth}
+        \begin{itemize}
+            \item Userspace daemon using the Python3 bcc framework
+            \vspace{2em}
+            \item Kernelspace components are all written in eBPF
+            \begin{itemize}
+                \item LSM probes (KRSI), kprobes, uprobes
+                \item Under 2000 source lines of kernelspace code
+            \end{itemize}
+            \vspace{2em}
+            \item Thanks to eBPF, bpfbox is \textbf{light-weight}, \textbf{flexible}, and \textbf{production-safe}
+            \begin{itemize}
+                \item Works out of the box on any vanilla Linux kernel $\ge 5.8$
+            \end{itemize}
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+        \begin{center}
+            \color{black}
+            \includegraphics[width=0.9\textwidth]{figs/at-a-glance.pdf}
+        \end{center}
+        \vspace{2em}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[c]{bpfbox Architecture}
+\begin{center}
+    \color{black}
+    \includegraphics[width=1\textwidth]{figs/bpfbox-overview.pdf}
+\end{center}
+\end{frame}
+
+%\begin{frame}[c, noframenumbering]{bpfbox Architecture}
+%\begin{center}
+%    \color{black}
+%    \includegraphics[width=1\textwidth]{figs/bpfbox-overview-1.pdf}
+%\end{center}
+%\end{frame}
+%
+%\begin{frame}[c, noframenumbering]{bpfbox Architecture}
+%\begin{center}
+%    \color{black}
+%    \vspace{0.55em}
+%    \includegraphics[width=1\textwidth]{figs/bpfbox-overview-2.pdf}
+%\end{center}
+%\end{frame}
+%
+%\begin{frame}[c, noframenumbering]{bpfbox Architecture}
+%\begin{center}
+%    \color{black}
+%    \vspace{-0.2em}
+%    \includegraphics[width=1\textwidth]{figs/bpfbox-overview-3.pdf}
+%\end{center}
+%\end{frame}
+%
+%\begin{frame}[c, noframenumbering]{bpfbox Architecture}
+%\begin{center}
+%    \color{black}
+%    \vspace{0.5em}
+%    \includegraphics[width=1\textwidth]{figs/bpfbox-overview-4.pdf}
+%\end{center}
+%\end{frame}
+
 
 % TODO: add this back in?
 %\begin{frame}[t]{bpfbox vs.~Snap}
@@ -692,6 +929,16 @@ Two modes of operation for each test.
 \end{itemize}
 \end{frame}
 
+\begin{frame}[c]{Results}
+\begin{itemize}
+    \item Results of the benhmarks
+    \item Percent differences from the base are given in parentheses
+\end{itemize}
+\begin{center}
+    \includegraphics[width=0.9\textwidth]{figs/performance-table.png}
+\end{center}
+\end{frame}
+
 \section{The Future of eBPF and Security}
 
 \begin{frame}[c]{Security Applications of eBPF}
@@ -737,7 +984,22 @@ Hot Patches (Kernel)
 
 \begin{frame}[c]{bpfbox Future Work}
 \begin{itemize}
-    \item TODO
+    \item Consider alternative policy languages
+    \begin{itemize}
+        \item yaml?
+        \item rego?
+    \end{itemize}
+    \vfill
+    \item Incorporate new kernel features
+    \begin{itemize}
+        \item \texttt{task\_local\_storage}, \texttt{inode\_local\_storage} (Linux 5.10)
+        \item Boot-time loading BPF programs (Linux 5.9)
+    \end{itemize}
+    \vfill
+    \item Container integration?
+    \begin{itemize}
+        \item Enforce policy at the container level
+    \end{itemize}
 \end{itemize}
 \end{frame}
 
