@@ -114,7 +114,7 @@
 
 \setwatermark[hoffset=6cm, voffset=0.3cm]{}
 
-\begin{frame}[c, noframenumbering, plain]{Outline of Talk}
+\begin{frame}[c, noframenumbering, plain]{Outline of this Talk}
     \tableofcontents
 \end{frame}
 
@@ -168,7 +168,7 @@ How do we protect the user from \textit{themselves} and \textit{their own proces
             \item etc.
         \end{itemize}
         \vspace{2em}
-        \textbf{The Morris Worm}
+        The Morris Worm
         \begin{itemize}
             \item Backdoor in \texttt{sendmail} daemon
             \item Buffer overflow in \texttt{fingerd}
@@ -313,8 +313,13 @@ So then \textbf{what is eBPF?}
 \end{frame}
 
 \begin{frame}[c]{Verifiably Safe Programs}
+Restricted execution context.
 \begin{itemize}
-    \item TODO explain verifier
+    \item 512 byte stack limit
+    \item 11 registers (10 general purpose)
+    \item Memory access must be bounds-checked
+    \item No unbounded loops
+    \item No back-edges in control flow
 \end{itemize}
 \end{frame}
 
@@ -689,7 +694,52 @@ Two modes of operation for each test.
 
 \section{The Future of eBPF and Security}
 
+\begin{frame}[c]{Security Applications of eBPF}
+\begin{center}
+    \color{black}
+    \includegraphics[height=0.8\textheight]{figs/ebpf-security.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}[c]{New Directions}
+Userspace LSM (Self-Confinement)
+\begin{itemize}
+    \item Attach \texttt{uprobes} to a shared library
+    \item Userspace applications make calls to the library to declare privileges
+    \item \texttt{uprobes} update a policy map in kernelspace
+\end{itemize}
+\vfill
+Dynamic Capabilities
+\begin{itemize}
+    \item Users define custom capabilities
+    \item Enforced in kernelspace with dynamic LSM probes
+    \item E.g.~\texttt{CAP\_ACCESS\_PHOTOS} to grant access to \texttt{$\sim$/pictures}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[c]{New Directions}
+Hot Patches (Userspace)
+\begin{itemize}
+    \item Patch vulnerabilities before security updates are available
+    \item \texttt{uprobes} to hook into functions
+    \item \texttt{bpf\_probe\_write\_user()} to replace userspace memory
+\end{itemize}
+\vfill
+Hot Patches (Kernel)
+\begin{itemize}
+    \item Replace vulnerable kernel functions with BPF programs
+    \item Alter/drop malicious packets before they reach the networking stack
+    \item E.g.~patch packet-of-death vulnerability with an XDP program
+\end{itemize}
+\end{frame}
+
 \section{Conclusion}
+
+\begin{frame}[c]{bpfbox Future Work}
+\begin{itemize}
+    \item TODO
+\end{itemize}
+\end{frame}
 
 \begin{frame}[c]{Acknowledgements}
 Special thanks to:
